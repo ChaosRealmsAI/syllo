@@ -15,7 +15,7 @@
 🎯 **当前积木**：<名称>
 📋 **开发计划**：<简要描述本积木要完成的功能和目标>
 📁 **涉及目录**：<列出本积木会修改/创建的主要目录和文件>
-⚡ **输入输出**：<明确输入参数、前置条件、输出产物>
+⚡  **输入输出**：<明确输入参数、前置条件、输出产物>
 ✅ **验收方式**：<如何验证、在哪里验证>
 
 ## 📍 积木执行
@@ -24,11 +24,10 @@
 🐛 **问题记录**：<遇到的问题和解决方案>
 
 ## 📍 AI自行验证
-
 - 强制条件：
   1. 所有测试（单测/集成/端到端）必须全部通过（0 失败）。
   2. 前端积木必须使用 Playwright MCP进行自验证；Playwright MCP测试全部通过后方可进入下一步。
-  3. ✅ **验收方式**：验证方式里的东西必须自行验证通过
+  3. ✅ **验收方式**：验证方式里的交付的结果必须自行验证通过
 
 
 ## 📍 积木完成
@@ -40,23 +39,14 @@
 ➡️ **后续积木**：<列出下一步可选的积木>
 📦 **积木统一登记（all-blocks）**
 - 统一登记位置：`docs/all-blocks.md`
-- 必填字段：积木名称、唯一ID、域路径、功能摘要、对外契约（接口/DTO/事件/错误码）链接、上游依赖、下游影响、版本、状态、负责人、验收入口、创建/最近验证时间。
-- 操作要求：在统一登记文件中追加或更新对应条目，保持版本化与可追溯。
+
 
 登记模板：
-```md
-
+```
 ----
 ## <block-id> - <block-name>
-- Domain: `<domain>/<block>/`
-- Summary: <一句话功能概述>
-- Contracts (exports): <链接列表>
-- Upstream Dependencies: [<block-id>]
-- Downstream Impact: [<block-id>]
-- Version: vX.Y.Z
-- Status: active | deprecated | experimental
-- Owner: <name/team>
-- Acceptance: <link/path>
+- 目录: 如：`<domain>/<block>/`
+- Summary: <功能概述>
 - CreatedAt: YYYY-MM-DD
 - LastVerifiedAt: YYYY-MM-DD
 -----

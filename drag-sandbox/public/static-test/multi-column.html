@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多列布局拖拽测试 - 飞书风格</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f6f7;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 40px 0;
+    }
+    
+    /* 块样式 */
+    .block {
+      position: relative;
+      padding: 8px 20px;
+      min-height: 40px;
+      margin-bottom: 2px;
+      transition: all 0.15s ease;
+      cursor: default;
+    }
+    
+    /* 多列容器 */
+    .column-container {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 2px;
+      position: relative;
+    }
+    
+    .column {
+      flex: 1;
+      min-width: 100px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      padding: 4px;
+      position: relative;
+    }
+    
+    .column .block {
+      background: white;
+      margin-bottom: 4px;
+    }
+    
+    /* 列调整手柄 */
+    .column-resizer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      cursor: col-resize;
+      background: transparent;
+      z-index: 20;
+      transition: background 0.2s;
+    }
+    
+    .column-resizer:hover {
+      background: #1677ff33;
+    }
+    
+    .column-resizer:active {
+      background: #1677ff66;
+    }
+    
+    .column-resizer::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: transparent;
+      transform: translateX(-50%);
+      transition: background 0.2s;
+    }
+    
+    .column-resizer:hover::after {
+      background: #1677ff;
+    }
+    
+    /* 拖拽状态 */
+    .block.dragging {
+      opacity: 0.3;
+    }
+    
+    .block.drag-over {
+      background: #f0f7ff;
+    }
+    
+    .block.handle-hover {
+      background: #f5f7fa;
+    }
+    
+    /* 拖拽句柄 */
+    .drag-handle {
+      position: absolute;
+      left: -46px;
+      top: 0;
+      bottom: 0;
+      width: 42px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    .drag-handle.show {
+      display: flex;
+      opacity: 1;
+    }
+    
+    .drag-handle-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      transition: background 0.15s;
+    }
+    
+    .drag-handle-icon:hover {
+      background: #e9ebee;
+    }
+    
+    .drag-handle-icon:active {
+      cursor: grabbing;
+    }
+    
+    /* 左侧热区 */
+    .hover-zone {
+      position: absolute;
+      left: -60px;
+      top: 0;
+      bottom: 0;
+      width: 60px;
+      z-index: 1;
+    }
+    
+    /* 插入指示线 */
+    .drop-indicator {
+      position: absolute;
+      background: #1677ff;
+      border-radius: 1px;
+      pointer-events: none;
+      display: none;
+    }
+    
+    /* 横向指示线 */
+    .drop-indicator.horizontal {
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+    
+    .drop-indicator.horizontal.before {
+      top: -2px;
+    }
+    
+    .drop-indicator.horizontal.after {
+      bottom: -2px;
+    }
+    
+    /* 竖向指示线（创建列） */
+    .drop-indicator.vertical {
+      top: 0;
+      bottom: 0;
+      width: 2px;
+    }
+    
+    .drop-indicator.vertical.left {
+      left: -4px;
+    }
+    
+    .drop-indicator.vertical.right {
+      right: -4px;
+    }
+    
+    .drop-indicator.show {
+      display: block;
+    }
+    
+    /* 拖拽成功动画 */
+    @keyframes dragSuccess {
+      0% {
+        background-color: #e6f4ff;
+      }
+      50% {
+        background-color: #e6f4ff;
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+    
+    .drag-success {
+      animation: dragSuccess 1.2s ease-out;
+    }
+    
+    /* 内容样式 */
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1f2329;
+    }
+    
+    p {
+      font-size: 14px;
+      color: #424d5c;
+      line-height: 1.6;
+    }
+    
+    li {
+      font-size: 14px;
+      color: #424d5c;
+      list-style-position: inside;
+    }
+    
+    blockquote {
+      padding-left: 12px;
+      border-left: 3px solid #dee0e3;
+      color: #646a73;
+      font-style: italic;
+    }
+    
+    /* 提示信息 */
+    .info-panel {
+      background: #e6f4ff;
+      border: 1px solid #91d5ff;
+      border-radius: 4px;
+      padding: 12px;
+      margin: 20px;
+      font-size: 14px;
+      color: #0958d9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="info-panel">
+      💡 拖拽到块的左右边缘可创建多列布局，列之间的分隔线可以拖动调整宽度
+    </div>
+    
+    <!-- 单独的块 -->
+    <div class="block" data-id="1">
+      <div class="hover-zone"></div>
+      <div class="drag-handle">
+        <div class="drag-handle-icon" draggable="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+            <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+            <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+          </svg>
+        </div>
+      </div>
+      <div class="drop-indicator horizontal before"></div>
+      <div class="drop-indicator horizontal after"></div>
+      <div class="drop-indicator vertical left"></div>
+      <div class="drop-indicator vertical right"></div>
+      <h2>飞书风格多列布局</h2>
+    </div>
+    
+    <div class="block" data-id="2">
+      <div class="hover-zone"></div>
+      <div class="drag-handle">
+        <div class="drag-handle-icon" draggable="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+            <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+            <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+          </svg>
+        </div>
+      </div>
+      <div class="drop-indicator horizontal before"></div>
+      <div class="drop-indicator horizontal after"></div>
+      <div class="drop-indicator vertical left"></div>
+      <div class="drop-indicator vertical right"></div>
+      <p>拖拽这个块到其他块的左侧或右侧，会看到蓝色竖线，释放后创建多列布局。</p>
+    </div>
+    
+    <!-- 已有的多列布局示例 -->
+    <div class="column-container" data-id="column-1">
+      <div class="column" style="flex: 1.5;">
+        <div class="block" data-id="3">
+          <div class="hover-zone"></div>
+          <div class="drag-handle">
+            <div class="drag-handle-icon" draggable="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+              </svg>
+            </div>
+          </div>
+          <div class="drop-indicator horizontal before"></div>
+          <div class="drop-indicator horizontal after"></div>
+          <div class="drop-indicator vertical left"></div>
+          <div class="drop-indicator vertical right"></div>
+          <h2>左侧列</h2>
+        </div>
+        <div class="block" data-id="4">
+          <div class="hover-zone"></div>
+          <div class="drag-handle">
+            <div class="drag-handle-icon" draggable="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+              </svg>
+            </div>
+          </div>
+          <div class="drop-indicator horizontal before"></div>
+          <div class="drop-indicator horizontal after"></div>
+          <div class="drop-indicator vertical left"></div>
+          <div class="drop-indicator vertical right"></div>
+          <p>这是一个已存在的多列布局示例</p>
+        </div>
+      </div>
+      
+      <!-- 列调整手柄 -->
+      <div class="column-resizer" style="left: calc(60% - 4px);"></div>
+      
+      <div class="column" style="flex: 1;">
+        <div class="block" data-id="5">
+          <div class="hover-zone"></div>
+          <div class="drag-handle">
+            <div class="drag-handle-icon" draggable="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+              </svg>
+            </div>
+          </div>
+          <div class="drop-indicator horizontal before"></div>
+          <div class="drop-indicator horizontal after"></div>
+          <div class="drop-indicator vertical left"></div>
+          <div class="drop-indicator vertical right"></div>
+          <h2>右侧列</h2>
+        </div>
+        <div class="block" data-id="6">
+          <div class="hover-zone"></div>
+          <div class="drag-handle">
+            <div class="drag-handle-icon" draggable="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+                <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+                <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+              </svg>
+            </div>
+          </div>
+          <div class="drop-indicator horizontal before"></div>
+          <div class="drop-indicator horizontal after"></div>
+          <div class="drop-indicator vertical left"></div>
+          <div class="drop-indicator vertical right"></div>
+          <li>拖动中间的分隔线可调整列宽</li>
+        </div>
+      </div>
+    </div>
+    
+    <div class="block" data-id="7">
+      <div class="hover-zone"></div>
+      <div class="drag-handle">
+        <div class="drag-handle-icon" draggable="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="6" cy="6" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="6" r="1.5" fill="#8f959e"/>
+            <circle cx="6" cy="10" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="10" r="1.5" fill="#8f959e"/>
+            <circle cx="6" cy="14" r="1.5" fill="#8f959e"/>
+            <circle cx="14" cy="14" r="1.5" fill="#8f959e"/>
+          </svg>
+        </div>
+      </div>
+      <div class="drop-indicator horizontal before"></div>
+      <div class="drop-indicator horizontal after"></div>
+      <div class="drop-indicator vertical left"></div>
+      <div class="drop-indicator vertical right"></div>
+      <blockquote>多列布局让内容组织更灵活，适合并排展示相关内容。</blockquote>
+    </div>
+  </div>
+  
+  <script src="multi-column-system.js"></script>
+</body>
+</html>

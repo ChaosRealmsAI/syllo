@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block拖拽系统 - 类Notion实现</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: #f7f6f3;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #37352f;
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Block容器 */
+        .blocks-container {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .blocks-container > * {
+            position: relative;
+        }
+
+        /* 基础Block样式 */
+        .block {
+            background: white;
+            padding: 12px 16px;
+            margin-bottom: 2px;
+            border-radius: 4px;
+            cursor: move;
+            position: relative;
+            transition: all 0.2s ease;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .block:hover {
+            background: #f7f6f3;
+        }
+
+        /* 拖拽手柄 */
+        .drag-handle {
+            position: absolute;
+            left: -24px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .block:hover .drag-handle {
+            opacity: 0.5;
+        }
+
+        .drag-handle:hover {
+            opacity: 1 !important;
+        }
+
+        .drag-handle::before {
+            content: '⋮⋮';
+            font-size: 12px;
+            color: #37352f;
+            letter-spacing: -2px;
+        }
+
+        /* Block类型 */
+        .block-text {
+            border-left: 3px solid transparent;
+        }
+
+        .block-heading {
+            font-size: 20px;
+            font-weight: 600;
+            padding: 16px;
+            border-left: 3px solid #4a9eff;
+        }
+
+        .block-todo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 3px solid #35c759;
+        }
+
+        .block-todo input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .block-quote {
+            border-left: 3px solid #ffb800;
+            font-style: italic;
+            color: #6b6b6b;
+            background: #fafaf9;
+        }
+
+        /* 拖拽中的状态 */
+        .block.dragging {
+            opacity: 0.3;
+            transform: scale(0.95);
+        }
+
+        .block.drag-over {
+            transform: translateY(2px);
+        }
+
+        /* 拖拽指示器 */
+        .drop-indicator {
+            background: #4a9eff;
+            opacity: 0;
+            transition: opacity 0.2s;
+            position: absolute;
+            z-index: 100;
+        }
+
+        /* 水平指示器（上下） */
+        .drop-indicator:not(.vertical) {
+            height: 2px;
+            left: 0;
+            right: 0;
+            margin: 4px 0;
+        }
+
+        /* 垂直指示器（左右） */
+        .drop-indicator.vertical {
+            width: 3px !important;
+            height: 100% !important;
+            top: 0;
+            bottom: 0;
+            margin: 0;
+        }
+
+        .drop-indicator.active {
+            opacity: 1;
+        }
+
+        .drop-indicator:not(.vertical)::before,
+        .drop-indicator:not(.vertical)::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #4a9eff;
+            border-radius: 50%;
+            top: -2px;
+        }
+
+        .drop-indicator:not(.vertical)::before {
+            left: -3px;
+        }
+
+        .drop-indicator:not(.vertical)::after {
+            right: -3px;
+        }
+
+        .drop-indicator.vertical::before,
+        .drop-indicator.vertical::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #4a9eff;
+            border-radius: 50%;
+            left: -2px;
+        }
+
+        .drop-indicator.vertical::before {
+            top: -3px;
+        }
+
+        .drop-indicator.vertical::after {
+            bottom: -3px;
+        }
+
+        /* 多列布局容器 */
+        .column-container {
+            display: flex;
+            gap: 16px;
+            padding: 12px;
+            background: #f7f6f3;
+            border-radius: 4px;
+            margin-bottom: 2px;
+            min-height: 100px;
+            position: relative;
+        }
+
+        .column-container.drag-over {
+            background: #e8f4ff;
+            border: 2px dashed #4a9eff;
+        }
+
+        .column {
+            flex: 1;
+            min-height: 80px;
+            background: white;
+            border-radius: 4px;
+            padding: 12px;
+            position: relative;
+        }
+
+        .column.drag-over {
+            background: #f0f8ff;
+        }
+
+        /* 列分割线 */
+        .column-divider {
+            width: 2px;
+            background: #e1e1e0;
+            margin: 0 8px;
+            cursor: col-resize;
+            position: relative;
+        }
+
+        .column-divider:hover {
+            background: #4a9eff;
+        }
+
+        /* 拖拽幽灵元素 */
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.8;
+            transform: rotate(2deg);
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            padding: 12px 16px;
+            min-width: 200px;
+        }
+
+        /* 操作按钮 */
+        .block-actions {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .block:hover .block-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #37352f;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background: #e1e1e0;
+        }
+
+        /* 添加按钮 */
+        .add-block-btn {
+            margin: 16px 0;
+            padding: 8px 16px;
+            background: #4a9eff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .add-block-btn:hover {
+            background: #3a8eef;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #b3b3b1;
+        }
+
+        .empty-state p {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        /* 上下文菜单 */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e1e1e0;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 4px;
+            z-index: 1001;
+            display: none;
+            min-width: 180px;
+        }
+
+        .context-menu.show {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 14px;
+            color: #37352f;
+        }
+
+        .context-menu-item:hover {
+            background: #f7f6f3;
+        }
+
+        .context-menu-divider {
+            height: 1px;
+            background: #e1e1e0;
+            margin: 4px 8px;
+        }
+
+        /* 自动滚动区域 */
+        .auto-scroll-zone {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 50px;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .auto-scroll-zone.top {
+            top: 0;
+            background: linear-gradient(to bottom, rgba(74, 158, 255, 0.1), transparent);
+        }
+
+        .auto-scroll-zone.bottom {
+            bottom: 0;
+            background: linear-gradient(to top, rgba(74, 158, 255, 0.1), transparent);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Block拖拽系统演示</h1>
+        
+        <div style="background: #e8f4ff; padding: 15px; border-radius: 6px; margin-bottom: 20px; color: #0066cc;">
+            💡 <strong>使用提示：</strong>
+            <ul style="margin: 10px 0 0 20px; line-height: 1.6;">
+                <li>拖拽Block到另一个Block的<strong>左边或右边20%区域</strong>，会创建多列布局</li>
+                <li>拖拽Block到另一个Block的<strong>上下区域</strong>，会进行上下排序</li>
+                <li>支持<strong>无限列数</strong>，可以持续添加新列</li>
+                <li>拖动列之间的<strong>分割线</strong>可以调整列宽</li>
+                <li>点击<strong>⊞按钮</strong>也可以快速创建多列</li>
+            </ul>
+        </div>
+        
+        <div class="blocks-container" id="blocksContainer">
+            <!-- 普通文本块 -->
+            <div class="block block-text" draggable="true" data-block-id="1">
+                <div class="drag-handle"></div>
+                <span>这是一个普通文本块，可以拖拽移动</span>
+                <div class="block-actions">
+                    <button class="action-btn" onclick="deleteBlock(this)">🗑</button>
+                    <button class="action-btn" onclick="convertToColumn(this)">⊞</button>
+                </div>
+            </div>
+
+            <!-- 标题块 -->
+            <div class="block block-heading" draggable="true" data-block-id="2">
+                <div class="drag-handle"></div>
+                <span>标题块示例</span>
+                <div class="block-actions">
+                    <button class="action-btn" onclick="deleteBlock(this)">🗑</button>
+                    <button class="action-btn" onclick="convertToColumn(this)">⊞</button>
+                </div>
+            </div>
+
+            <!-- 待办事项块 -->
+            <div class="block block-todo" draggable="true" data-block-id="3">
+                <div class="drag-handle"></div>
+                <input type="checkbox">
+                <span>待办事项 - 支持勾选</span>
+                <div class="block-actions">
+                    <button class="action-btn" onclick="deleteBlock(this)">🗑</button>
+                    <button class="action-btn" onclick="convertToColumn(this)">⊞</button>
+                </div>
+            </div>
+
+            <!-- 引用块 -->
+            <div class="block block-quote" draggable="true" data-block-id="4">
+                <div class="drag-handle"></div>
+                <span>"这是一个引用块，用于展示引用内容"</span>
+                <div class="block-actions">
+                    <button class="action-btn" onclick="deleteBlock(this)">🗑</button>
+                    <button class="action-btn" onclick="convertToColumn(this)">⊞</button>
+                </div>
+            </div>
+
+            <!-- 多列容器示例 -->
+            <div class="column-container" data-block-id="5">
+                <div class="column" data-column="1">
+                    <div class="block block-text" draggable="true" data-block-id="6">
+                        <div class="drag-handle"></div>
+                        <span>左侧列内容</span>
+                        <div class="block-actions">
+                            <button class="action-btn" onclick="deleteBlock(this)">🗑</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-divider"></div>
+                <div class="column" data-column="2">
+                    <div class="block block-text" draggable="true" data-block-id="7">
+                        <div class="drag-handle"></div>
+                        <span>右侧列内容</span>
+                        <div class="block-actions">
+                            <button class="action-btn" onclick="deleteBlock(this)">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-block-btn" onclick="addNewBlock()">+ 添加新块</button>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="changeBlockType('text')">转换为文本</div>
+        <div class="context-menu-item" onclick="changeBlockType('heading')">转换为标题</div>
+        <div class="context-menu-item" onclick="changeBlockType('todo')">转换为待办</div>
+        <div class="context-menu-item" onclick="changeBlockType('quote')">转换为引用</div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item" onclick="duplicateBlock()">复制块</div>
+        <div class="context-menu-item" onclick="deleteSelectedBlock()">删除块</div>
+    </div>
+
+    <!-- 自动滚动区域 -->
+    <div class="auto-scroll-zone top" id="scrollZoneTop"></div>
+    <div class="auto-scroll-zone bottom" id="scrollZoneBottom"></div>
+
+    <script src="drag-system.js"></script>
+</body>
+</html>

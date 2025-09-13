@@ -1,0 +1,23 @@
+{
+  "name": "playwright-drag-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:feishu": "playwright test feishu-drag.spec.js",
+    "test:advanced": "playwright test advanced-drag.spec.js",
+    "install:browsers": "playwright install",
+    "report": "playwright show-report"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@playwright/test": "^1.55.0"
+  }
+}
