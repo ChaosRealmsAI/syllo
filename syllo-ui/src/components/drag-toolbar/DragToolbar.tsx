@@ -17,7 +17,7 @@ const DragToolbar: React.FC<DragToolbarProps> = ({ className = '', onMenuItemCli
   const triggerRef = useRef<HTMLDivElement>(null);
   const position = useSmartPosition(triggerRef, isOpen, {
     menuWidth: 280,
-    menuHeight: 500,
+    menuHeight: 400,
     defaultSide: 'bottom',
     defaultAlign: 'start'
   });

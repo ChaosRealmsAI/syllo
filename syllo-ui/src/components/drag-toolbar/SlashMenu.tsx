@@ -15,7 +15,7 @@ interface SlashMenuProps {
 
 const SlashMenu: React.FC<SlashMenuProps> = ({ onItemClick }) => {
   return (
-    <div className="w-[280px] rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-gray-200 dark:border-neutral-800">
+    <div className="w-[280px] max-h-[400px] overflow-y-auto overflow-x-hidden rounded-lg bg-white dark:bg-neutral-900 shadow-lg border border-gray-200 dark:border-neutral-800 custom-scrollbar">
       {menuSections.map((section, index) => (
         <div key={section.id}>
           {index > 0 && <Separator className="my-1" />}

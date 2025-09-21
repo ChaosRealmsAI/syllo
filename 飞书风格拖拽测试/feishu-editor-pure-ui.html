@@ -200,6 +200,116 @@
             position: relative;
         }
 
+        /* ========== 拖拽句柄样式 ========== */
+        .drag-handle-container {
+            position: absolute;
+            left: -52px;
+            top: 0;
+            width: 42px;
+            height: 26px;
+            opacity: 0;
+            transition: opacity 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+            z-index: 10;
+        }
+
+        .feishu-content-block:hover .drag-handle-container {
+            opacity: 1;
+        }
+
+        .drag-handle-trigger {
+            display: block;
+            width: 42px;
+            height: 26px;
+            background: transparent;
+            cursor: grab;
+        }
+
+        .drag-handle-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 42px;
+            height: 26px;
+            padding: 1px;
+            border: 1px solid rgb(222, 224, 227);
+            border-radius: 6px;
+            background: rgb(255, 255, 255);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .drag-handle-wrapper:hover {
+            border-color: rgb(51, 112, 255);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .drag-handle-trigger:active .drag-handle-wrapper {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        .drag-handle-icon-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            background: transparent;
+        }
+
+        .drag-icon {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 22px;
+            height: 22px;
+        }
+
+        .drag-icon svg {
+            display: block;
+            width: 14px;
+            height: 14px;
+            color: rgb(31, 35, 41);
+        }
+
+        .drag-handle-icon {
+            display: block;
+            width: 14px;
+            height: 14px;
+        }
+
+        .drag-handle-icon svg {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            color: rgb(143, 149, 158);
+        }
+
+        /* 拖拽中的样式 */
+        .feishu-content-block.dragging {
+            opacity: 0.5;
+            background: rgba(0, 0, 0, 0.04);
+            border-radius: 6px;
+        }
+
+        /* 拖拽指示器 */
+        .drop-indicator {
+            position: relative;
+            height: 2px;
+            background: rgb(51, 112, 255);
+            margin: 8px 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .drop-indicator.active {
+            opacity: 1;
+        }
+
         /* ========== 标题样式 ========== */
         .feishu-heading {
             position: relative;
@@ -661,7 +771,26 @@
         <!-- 内容区域 - 为Tiptap预留 -->
         <div class="tiptap-editor-container">
             <!-- 示例内容 - Tiptap集成后会被替换 -->
-            <div class="feishu-content-block">
+            <div class="feishu-content-block" data-block-id="block-1">
+                <!-- 拖拽句柄 -->
+                <div class="drag-handle-container">
+                    <div class="drag-handle-trigger">
+                        <div class="drag-handle-wrapper">
+                            <div class="drag-handle-icon-container">
+                                <span class="drag-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 3a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V4h-7v16h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3V4H4v3a1 1 0 1 1-2 0V3Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <span class="drag-handle-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8.25 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7.25a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm1.75 5.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0ZM14.753 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM16.5 12a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm-1.747 9a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <div class="feishu-heading feishu-heading-h1">
                     <span class="feishu-fold-btn">
                         <svg viewBox="0 0 16 16" fill="none">
@@ -672,13 +801,51 @@
                 </div>
             </div>
 
-            <div class="feishu-content-block">
+            <div class="feishu-content-block" data-block-id="block-2">
+                <!-- 拖拽句柄 -->
+                <div class="drag-handle-container">
+                    <div class="drag-handle-trigger">
+                        <div class="drag-handle-wrapper">
+                            <div class="drag-handle-icon-container">
+                                <span class="drag-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 3a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V4h-7v16h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3V4H4v3a1 1 0 1 1-2 0V3Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <span class="drag-handle-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8.25 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7.25a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm1.75 5.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0ZM14.753 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM16.5 12a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm-1.747 9a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <p class="feishu-paragraph">
                     这是一个为Tiptap集成准备的纯UI版本。所有样式都已经提取为CSS变量，方便后续与Tiptap编辑器集成。
                 </p>
             </div>
 
-            <div class="feishu-content-block">
+            <div class="feishu-content-block" data-block-id="block-3">
+                <!-- 拖拽句柄 -->
+                <div class="drag-handle-container">
+                    <div class="drag-handle-trigger">
+                        <div class="drag-handle-wrapper">
+                            <div class="drag-handle-icon-container">
+                                <span class="drag-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 3a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V4h-7v16h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3V4H4v3a1 1 0 1 1-2 0V3Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <span class="drag-handle-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8.25 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7.25a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm1.75 5.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0ZM14.753 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM16.5 12a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm-1.747 9a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <div class="feishu-heading feishu-heading-h2">
                     <span class="feishu-fold-btn">
                         <svg viewBox="0 0 16 16" fill="none">
@@ -689,7 +856,26 @@
                 </div>
             </div>
 
-            <div class="feishu-content-block">
+            <div class="feishu-content-block" data-block-id="block-4">
+                <!-- 拖拽句柄 -->
+                <div class="drag-handle-container">
+                    <div class="drag-handle-trigger">
+                        <div class="drag-handle-wrapper">
+                            <div class="drag-handle-icon-container">
+                                <span class="drag-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 3a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V4h-7v16h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3V4H4v3a1 1 0 1 1-2 0V3Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <span class="drag-handle-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8.25 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7.25a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm1.75 5.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0ZM14.753 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM16.5 12a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm-1.747 9a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <ul class="feishu-list">
                     <li class="feishu-list-item">CSS变量系统已完善</li>
                     <li class="feishu-list-item">预留了Tiptap样式覆盖</li>
@@ -697,7 +883,26 @@
                 </ul>
             </div>
 
-            <div class="feishu-content-block">
+            <div class="feishu-content-block" data-block-id="block-5">
+                <!-- 拖拽句柄 -->
+                <div class="drag-handle-container">
+                    <div class="drag-handle-trigger">
+                        <div class="drag-handle-wrapper">
+                            <div class="drag-handle-icon-container">
+                                <span class="drag-icon">
+                                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                        <path d="M2 3a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V4h-7v16h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3V4H4v3a1 1 0 3 1-2 0V3Z" fill="currentColor"></path>
+                                    </svg>
+                                </span>
+                            </div>
+                            <span class="drag-handle-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none">
+                                    <path d="M8.25 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7.25a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm1.75 5.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0ZM14.753 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM16.5 12a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm-1.747 9a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
                 <div class="feishu-code-block">
 // Tiptap集成示例代码
 import { Editor } from '@tiptap/core'

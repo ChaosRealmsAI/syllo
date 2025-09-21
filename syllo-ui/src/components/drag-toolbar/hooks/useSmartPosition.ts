@@ -29,7 +29,7 @@ export function useSmartPosition(
     menuWidth = 280,
     menuHeight = 400,
     offset = 5,
-    padding = 10
+    padding = 20
   } = options;
 
   const [position, setPosition] = useState<PositionResult>({
@@ -59,61 +59,80 @@ export function useSmartPosition(
       let bestSide: Position = defaultSide;
       let bestAlign: Alignment = defaultAlign;
 
-      // Priority: bottom > top > right > left
-      if (defaultSide === 'bottom' || defaultSide === 'top') {
-        // Vertical positioning
-        if (spaceBottom >= menuHeight || spaceBottom > spaceTop) {
+      // For right edge: show menu on left
+      if (rect.right > viewportWidth - menuWidth - padding) {
+        if (spaceLeft >= menuWidth) {
+          bestSide = 'left';
+          bestAlign = 'start';
+        } else if (spaceBottom >= menuHeight) {
           bestSide = 'bottom';
-        } else {
+          bestAlign = 'end';
+        } else if (spaceTop >= menuHeight) {
           bestSide = 'top';
-        }
-
-        // Check horizontal alignment
-        if (rect.left + menuWidth > viewportWidth - padding) {
-          // Not enough space on the right
-          if (rect.right - menuWidth > padding) {
-            bestAlign = 'end';
-          } else {
-            bestAlign = 'center';
-          }
+          bestAlign = 'end';
         } else {
+          // Force left with scroll if needed
+          bestSide = 'left';
           bestAlign = 'start';
         }
-      } else {
-        // Horizontal positioning
-        if (spaceRight >= menuWidth || spaceRight > spaceLeft) {
+      }
+      // For left edge: show menu on right
+      else if (rect.left < menuWidth + padding) {
+        if (spaceRight >= menuWidth) {
           bestSide = 'right';
+          bestAlign = 'start';
+        } else if (spaceBottom >= menuHeight) {
+          bestSide = 'bottom';
+          bestAlign = 'start';
+        } else if (spaceTop >= menuHeight) {
+          bestSide = 'top';
+          bestAlign = 'start';
         } else {
-          bestSide = 'left';
+          // Force right with scroll if needed
+          bestSide = 'right';
+          bestAlign = 'start';
         }
-
-        // Check vertical alignment
-        if (rect.top + menuHeight > viewportHeight - padding) {
-          // Not enough space on the bottom
-          if (rect.bottom - menuHeight > padding) {
-            bestAlign = 'end';
-          } else {
-            bestAlign = 'center';
-          }
+      }
+      // For bottom edge: show menu on top
+      else if (rect.bottom > viewportHeight - menuHeight - padding) {
+        bestSide = 'top';
+        // Check horizontal space
+        if (rect.left + menuWidth > viewportWidth - padding) {
+          bestAlign = 'end';
         } else {
           bestAlign = 'start';
         }
       }
-
-      // If still doesn't fit, try opposite axis
-      if (bestSide === 'bottom' && spaceBottom < menuHeight / 2) {
-        if (spaceRight >= menuWidth) {
-          bestSide = 'right';
-          bestAlign = 'start';
-        } else if (spaceLeft >= menuWidth) {
-          bestSide = 'left';
+      // For top edge: show menu on bottom
+      else if (rect.top < menuHeight + padding) {
+        bestSide = 'bottom';
+        // Check horizontal space
+        if (rect.left + menuWidth > viewportWidth - padding) {
+          bestAlign = 'end';
+        } else {
           bestAlign = 'start';
         }
-      } else if (bestSide === 'top' && spaceTop < menuHeight / 2) {
-        if (spaceRight >= menuWidth) {
+      }
+      // Default: try bottom first
+      else {
+        if (spaceBottom >= menuHeight) {
+          bestSide = 'bottom';
+          if (rect.left + menuWidth > viewportWidth - padding) {
+            bestAlign = 'end';
+          } else {
+            bestAlign = 'start';
+          }
+        } else if (spaceTop >= menuHeight) {
+          bestSide = 'top';
+          if (rect.left + menuWidth > viewportWidth - padding) {
+            bestAlign = 'end';
+          } else {
+            bestAlign = 'start';
+          }
+        } else if (spaceRight >= menuWidth) {
           bestSide = 'right';
           bestAlign = 'start';
-        } else if (spaceLeft >= menuWidth) {
+        } else {
           bestSide = 'left';
           bestAlign = 'start';
         }

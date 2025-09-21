@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书拖拽工具栏组件</title>
+    <style>
+        :root {
+            /* 颜色变量 */
+            --text-primary: rgb(31, 35, 41);
+            --text-secondary: rgb(143, 149, 158);
+            --bg-surface: rgb(255, 255, 255);
+            --border-default: rgb(222, 224, 227);
+            --color-accent: rgb(51, 109, 244);
+
+            /* 字体 */
+            --font-family: LarkHackSafariFont, LarkEmojiFont, LarkChineseQuote, -apple-system, "system-ui", "Helvetica Neue", Tahoma, "PingFang SC", "Microsoft Yahei", Arial, "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: var(--font-family);
+            background-color: #f5f5f5;
+            color: var(--text-primary);
+        }
+
+        /* 主容器样式 */
+        .overlay-container {
+            position: fixed;
+            z-index: 79;
+            /* 为了演示效果，调整位置到可见区域 */
+            right: 50px;
+            top: 100px;
+            width: 42px;
+            height: 26px;
+            transition: left 0.04s cubic-bezier(0.34, 0.69, 0.1, 1),
+                       top 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+                       right 0.04s cubic-bezier(0.34, 0.69, 0.1, 1),
+                       bottom 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+                       max-height 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+                       width 0.2s cubic-bezier(0.34, 0.69, 0.1, 1),
+                       height 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+        }
+
+        .menu-trigger.text-menu-trigger.has-drag-icon {
+            display: block;
+            width: 42px;
+            height: 26px;
+            max-width: 59px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 16px;
+            font-weight: 400;
+            text-align: start;
+            opacity: 1;
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .hover-drag-icon-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 42px;
+            height: 26px;
+            padding: 1px;
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            background: var(--bg-surface);
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 16px;
+            font-weight: 400;
+            text-align: start;
+            opacity: 1;
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .hover-block-type-icon-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 16px;
+            font-weight: 400;
+            text-align: start;
+            opacity: 1;
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .universe-icon.menu_ud_icon.color-b-500 {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            width: 22px;
+            height: 22px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 22px;
+            text-align: center;
+            opacity: 1;
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .universe-icon.menu_ud_icon.color-b-500 svg {
+            display: block;
+            width: 14px;
+            height: 14px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 14px;
+            text-align: center;
+            opacity: 1;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .universe-icon.drag-handle {
+            display: block;
+            width: 14px;
+            height: 14px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            font-size: 14px;
+            font-weight: 400;
+            text-align: center;
+            opacity: 1;
+            transition: all 0.2s ease;
+            cursor: grab;
+        }
+
+        .universe-icon.drag-handle svg {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: var(--font-family);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 14px;
+            text-align: center;
+            opacity: 1;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        /* 悬浮效果 */
+        .hover-drag-icon-wrapper:hover {
+            border-color: var(--color-accent);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-trigger:active {
+            cursor: grabbing;
+        }
+
+        /* 演示页面样式 */
+        .demo-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .demo-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .demo-description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .demo-note {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 40px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">飞书拖拽工具栏组件演示</h1>
+        <p class="demo-description">
+            这是一个一比一复刻的飞书编辑器拖拽工具栏组件，包含文本图标和拖拽图标。
+            组件位于页面右上角，具有完整的样式和交互效果。
+        </p>
+
+        <div class="demo-note">
+            <strong>组件特性：</strong>
+            <ul>
+                <li>精确的视觉样式复刻</li>
+                <li>响应式的悬浮效果</li>
+                <li>平滑的过渡动画</li>
+                <li>标准的交互反馈</li>
+                <li>可拖拽的视觉指示</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 拖拽工具栏组件 -->
+    <div class="overlay-container overlay-transition">
+        <div class="menu-trigger text-menu-trigger has-drag-icon">
+            <div class="hover-drag-icon-wrapper">
+                <div class="hover-block-type-icon-container">
+                    <span class="universe-icon menu_ud_icon color-b-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="TextOutlined">
+                            <path d="M2 3a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v4a1 1 0 1 1-2 0V4h-7v16h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3V4H4v3a1 1 0 1 1-2 0V3Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <span class="universe-icon drag-handle">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="DragOutlined">
+                        <path d="M8.25 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm0 7.25a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Zm1.75 5.5a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0ZM14.753 6.5a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5ZM16.5 12a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm-1.747 9a1.75 1.75 0 1 0 0-3.5 1.75 1.75 0 0 0 0 3.5Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

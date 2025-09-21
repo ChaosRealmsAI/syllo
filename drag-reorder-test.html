@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纵向拖拽排序测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 40px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 可拖拽项 */
+        .draggable-item {
+            position: relative;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            padding: 16px 16px 16px 40px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: default;
+            user-select: none;
+        }
+
+        /* 拖拽句柄 */
+        .drag-handle {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border-radius: 4px;
+        }
+
+        .drag-handle:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* 句柄图标 */
+        .drag-handle::before {
+            content: '⋮⋮';
+            font-size: 12px;
+            color: #999;
+            letter-spacing: -2px;
+        }
+
+        /* 鼠标悬停显示句柄 */
+        .draggable-item:hover .drag-handle {
+            opacity: 1;
+        }
+
+        /* 拖拽中的元素 */
+        .dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            background: #f0f7ff;
+            z-index: 1000;
+        }
+
+        /* 拖拽占位符 */
+        .drag-placeholder {
+            background: #e3f2fd;
+            border: 2px dashed #2196f3;
+            opacity: 0.5;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        /* 可放置区域提示 */
+        .drop-indicator {
+            height: 2px;
+            background: #2196f3;
+            margin: 4px 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+            position: relative;
+        }
+
+        .drop-indicator.active {
+            opacity: 1;
+        }
+
+        .drop-indicator::before,
+        .drop-indicator::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #2196f3;
+            border-radius: 50%;
+            top: -3px;
+        }
+
+        .drop-indicator::before {
+            left: -4px;
+        }
+
+        .drop-indicator::after {
+            right: -4px;
+        }
+
+        /* 内容样式 */
+        .item-content h3 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .item-content p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* 不可拖拽状态 */
+        .no-drag {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* 拖拽预览（跟随鼠标的元素） */
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transform: rotate(2deg);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin-bottom: 24px;">纵向拖拽排序示例</h1>
+
+        <div id="draggable-list">
+            <div class="draggable-item" data-id="1">
+                <div class="drag-handle"></div>
+                <div class="item-content">
+                    <h3>第一个块</h3>
+                    <p>这是第一个可拖拽的内容块，可以通过左侧的句柄进行拖拽排序。</p>
+                </div>
+            </div>
+
+            <div class="draggable-item" data-id="2">
+                <div class="drag-handle"></div>
+                <div class="item-content">
+                    <h3>第二个块</h3>
+                    <p>拖拽时会显示蓝色指示线，表示放置位置。</p>
+                </div>
+            </div>
+
+            <div class="draggable-item" data-id="3">
+                <div class="drag-handle"></div>
+                <div class="item-content">
+                    <h3>第三个块</h3>
+                    <p>支持平滑的动画过渡效果，提升用户体验。</p>
+                </div>
+            </div>
+
+            <div class="draggable-item" data-id="4">
+                <div class="drag-handle"></div>
+                <div class="item-content">
+                    <h3>第四个块</h3>
+                    <p>拖拽过程中元素会半透明显示，便于查看目标位置。</p>
+                </div>
+            </div>
+
+            <div class="draggable-item" data-id="5">
+                <div class="drag-handle"></div>
+                <div class="item-content">
+                    <h3>第五个块</h3>
+                    <p>松开鼠标后，元素会自动排列到新位置。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 拖拽管理器
+        class DragManager {
+            constructor(container) {
+                this.container = container;
+                this.draggedElement = null;
+                this.draggedIndex = -1;
+                this.placeholder = null;
+                this.dropIndicator = null;
+                this.ghostElement = null;
+                this.initialMousePos = { x: 0, y: 0 };
+                this.elementOffset = { x: 0, y: 0 };
+
+                this.init();
+            }
+
+            init() {
+                // 获取所有拖拽句柄
+                const handles = this.container.querySelectorAll('.drag-handle');
+
+                handles.forEach(handle => {
+                    handle.addEventListener('mousedown', this.handleDragStart.bind(this));
+                });
+
+                // 全局事件监听
+                document.addEventListener('mousemove', this.handleDragMove.bind(this));
+                document.addEventListener('mouseup', this.handleDragEnd.bind(this));
+
+                // 防止文本选中
+                document.addEventListener('selectstart', (e) => {
+                    if (this.draggedElement) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            handleDragStart(e) {
+                e.preventDefault();
+
+                // 获取被拖拽的元素
+                this.draggedElement = e.target.closest('.draggable-item');
+                if (!this.draggedElement) return;
+
+                // 记录初始位置
+                const rect = this.draggedElement.getBoundingClientRect();
+                this.initialMousePos = { x: e.clientX, y: e.clientY };
+                this.elementOffset = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+
+                // 添加拖拽中的样式
+                this.draggedElement.classList.add('dragging');
+
+                // 创建占位符
+                this.createPlaceholder();
+
+                // 创建拖拽指示器
+                this.createDropIndicator();
+
+                // 创建幽灵元素（可选，跟随鼠标的预览）
+                // this.createGhostElement();
+            }
+
+            handleDragMove(e) {
+                if (!this.draggedElement) return;
+
+                const mouseY = e.clientY;
+
+                // 更新幽灵元素位置（如果启用）
+                if (this.ghostElement) {
+                    this.ghostElement.style.left = (e.clientX - this.elementOffset.x) + 'px';
+                    this.ghostElement.style.top = (e.clientY - this.elementOffset.y) + 'px';
+                }
+
+                // 获取所有可拖拽项
+                const items = [...this.container.querySelectorAll('.draggable-item:not(.dragging)')];
+
+                // 查找最近的插入位置
+                let closestElement = null;
+                let closestDistance = Infinity;
+                let insertBefore = true;
+
+                items.forEach(item => {
+                    const rect = item.getBoundingClientRect();
+                    const itemCenterY = rect.top + rect.height / 2;
+                    const distance = Math.abs(mouseY - itemCenterY);
+
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestElement = item;
+                        insertBefore = mouseY < itemCenterY;
+                    }
+                });
+
+                // 更新占位符位置
+                if (closestElement) {
+                    if (insertBefore) {
+                        closestElement.parentNode.insertBefore(this.placeholder, closestElement);
+                    } else {
+                        closestElement.parentNode.insertBefore(this.placeholder, closestElement.nextSibling);
+                    }
+
+                    // 更新指示器位置
+                    this.updateDropIndicator(closestElement, insertBefore);
+                }
+
+                // 如果鼠标在列表底部
+                const containerRect = this.container.getBoundingClientRect();
+                if (mouseY > containerRect.bottom - 50) {
+                    this.container.appendChild(this.placeholder);
+                }
+            }
+
+            handleDragEnd(e) {
+                if (!this.draggedElement) return;
+
+                // 移除拖拽样式
+                this.draggedElement.classList.remove('dragging');
+
+                // 将元素插入到占位符位置
+                if (this.placeholder && this.placeholder.parentNode) {
+                    this.placeholder.parentNode.insertBefore(this.draggedElement, this.placeholder);
+                }
+
+                // 清理
+                this.cleanup();
+
+                // 触发排序完成事件
+                this.onSortComplete();
+            }
+
+            createPlaceholder() {
+                this.placeholder = document.createElement('div');
+                this.placeholder.className = 'drag-placeholder';
+                this.placeholder.style.height = this.draggedElement.offsetHeight + 'px';
+
+                // 将占位符插入到原始位置
+                this.draggedElement.parentNode.insertBefore(this.placeholder, this.draggedElement.nextSibling);
+            }
+
+            createDropIndicator() {
+                this.dropIndicator = document.createElement('div');
+                this.dropIndicator.className = 'drop-indicator';
+                this.container.appendChild(this.dropIndicator);
+            }
+
+            updateDropIndicator(targetElement, insertBefore) {
+                if (!this.dropIndicator) return;
+
+                const rect = targetElement.getBoundingClientRect();
+                const containerRect = this.container.getBoundingClientRect();
+
+                this.dropIndicator.style.position = 'absolute';
+                this.dropIndicator.style.width = rect.width + 'px';
+                this.dropIndicator.style.left = (rect.left - containerRect.left) + 'px';
+
+                if (insertBefore) {
+                    this.dropIndicator.style.top = (rect.top - containerRect.top - 4) + 'px';
+                } else {
+                    this.dropIndicator.style.top = (rect.bottom - containerRect.top - 4) + 'px';
+                }
+
+                this.dropIndicator.classList.add('active');
+            }
+
+            createGhostElement() {
+                this.ghostElement = this.draggedElement.cloneNode(true);
+                this.ghostElement.className = 'drag-ghost ' + this.draggedElement.className;
+                this.ghostElement.style.width = this.draggedElement.offsetWidth + 'px';
+                document.body.appendChild(this.ghostElement);
+            }
+
+            cleanup() {
+                // 移除占位符
+                if (this.placeholder && this.placeholder.parentNode) {
+                    this.placeholder.parentNode.removeChild(this.placeholder);
+                }
+
+                // 移除指示器
+                if (this.dropIndicator && this.dropIndicator.parentNode) {
+                    this.dropIndicator.parentNode.removeChild(this.dropIndicator);
+                }
+
+                // 移除幽灵元素
+                if (this.ghostElement && this.ghostElement.parentNode) {
+                    this.ghostElement.parentNode.removeChild(this.ghostElement);
+                }
+
+                // 重置状态
+                this.draggedElement = null;
+                this.placeholder = null;
+                this.dropIndicator = null;
+                this.ghostElement = null;
+            }
+
+            onSortComplete() {
+                // 获取新的排序
+                const items = this.container.querySelectorAll('.draggable-item');
+                const newOrder = Array.from(items).map(item => item.dataset.id);
+
+                console.log('新的排序:', newOrder);
+
+                // 这里可以发送到服务器或更新状态
+            }
+        }
+
+        // 初始化拖拽管理器
+        const container = document.getElementById('draggable-list');
+        const dragManager = new DragManager(container);
+    </script>
+</body>
+</html>
