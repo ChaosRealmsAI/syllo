@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书编辑器纯UI版 - Tiptap Ready</title>
+    <style>
+        /* ========== CSS变量系统 ========== */
+        :root {
+            /* 颜色系统 */
+            --feishu-text-primary: rgb(31, 35, 41);
+            --feishu-text-secondary: rgb(100, 106, 115);
+            --feishu-text-tertiary: rgb(143, 149, 158);
+            --feishu-text-placeholder: rgb(187, 191, 196);
+            --feishu-text-white: rgb(255, 255, 255);
+
+            /* 背景色 */
+            --feishu-bg-hover: rgba(0, 0, 0, 0.04);
+            --feishu-bg-active: rgba(0, 0, 0, 0.08);
+            --feishu-bg-selection: rgba(35, 131, 226, 0.2);
+            --feishu-bg-highlight: rgba(251, 191, 36, 0.1);
+
+            /* 边框 */
+            --feishu-border-light: rgba(0, 0, 0, 0.06);
+            --feishu-border-divider: rgba(0, 0, 0, 0.08);
+
+            /* 间距系统 */
+            --feishu-spacing-xs: 4px;
+            --feishu-spacing-sm: 8px;
+            --feishu-spacing-md: 12px;
+            --feishu-spacing-lg: 16px;
+            --feishu-spacing-xl: 20px;
+            --feishu-spacing-2xl: 24px;
+
+            /* 圆角 */
+            --feishu-radius-sm: 2px;
+            --feishu-radius-md: 4px;
+            --feishu-radius-lg: 6px;
+
+            /* 字体 */
+            --feishu-font-family: LarkHackSafariFont, LarkEmojiFont, LarkChineseQuote,
+                                  -apple-system, "system-ui", "Helvetica Neue", Tahoma,
+                                  "PingFang SC", "Microsoft Yahei", Arial, sans-serif;
+
+            /* 动画 */
+            --feishu-transition-fast: 0.15s ease;
+            --feishu-transition-normal: 0.2s ease;
+            --feishu-transition-slow: 0.3s ease-in-out;
+        }
+
+        /* ========== 基础重置 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--feishu-font-family);
+            font-size: 16px;
+            color: var(--feishu-text-primary);
+            background: #fff;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* ========== 编辑器容器 ========== */
+        .feishu-editor-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 60px;
+        }
+
+        /* ========== 编辑器头部工具栏 ========== */
+        .feishu-editor-toolbar {
+            display: flex;
+            gap: var(--feishu-spacing-sm);
+            margin-bottom: var(--feishu-spacing-2xl);
+            opacity: 0;
+            transition: opacity var(--feishu-transition-normal);
+        }
+
+        .feishu-editor-wrapper:hover .feishu-editor-toolbar {
+            opacity: 1;
+        }
+
+        .feishu-toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--feishu-spacing-xs);
+            padding: var(--feishu-spacing-xs) var(--feishu-spacing-sm);
+            border: none;
+            background: transparent;
+            border-radius: var(--feishu-radius-lg);
+            color: var(--feishu-text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--feishu-transition-fast);
+        }
+
+        .feishu-toolbar-btn:hover {
+            background: var(--feishu-bg-hover);
+        }
+
+        .feishu-toolbar-btn:active {
+            background: var(--feishu-bg-active);
+        }
+
+        .feishu-toolbar-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ========== 文档标题 ========== */
+        .feishu-doc-title {
+            font-size: 34px;
+            font-weight: 500;
+            line-height: 1.4;
+            color: var(--feishu-text-primary);
+            margin-bottom: var(--feishu-spacing-lg);
+            padding: var(--feishu-spacing-xs) 0;
+            border: none;
+            outline: none;
+            transition: background var(--feishu-transition-slow);
+        }
+
+        .feishu-doc-title:hover {
+            background: var(--feishu-bg-highlight);
+            animation: flash-highlight var(--feishu-transition-slow);
+        }
+
+        @keyframes flash-highlight {
+            0% { background: transparent; }
+            50% { background: var(--feishu-bg-highlight); }
+            100% { background: transparent; }
+        }
+
+        /* ========== 文档元信息 ========== */
+        .feishu-doc-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--feishu-spacing-lg);
+            padding: var(--feishu-spacing-md) 0;
+            margin-bottom: var(--feishu-spacing-2xl);
+            border-bottom: 1px solid var(--feishu-border-light);
+        }
+
+        .feishu-meta-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .feishu-meta-group:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 14px;
+            background: var(--feishu-border-divider);
+        }
+
+        .feishu-meta-author {
+            display: flex;
+            align-items: center;
+            gap: var(--feishu-spacing-xs);
+            padding: 2px var(--feishu-spacing-xs);
+            border-radius: var(--feishu-radius-lg);
+            cursor: pointer;
+            transition: background var(--feishu-transition-fast);
+        }
+
+        .feishu-meta-author:hover {
+            background: var(--feishu-bg-hover);
+        }
+
+        .feishu-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #5C91FF;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .feishu-meta-text {
+            color: var(--feishu-text-secondary);
+            font-size: 14px;
+        }
+
+        /* ========== 内容区块 ========== */
+        .feishu-content-block {
+            margin-bottom: var(--feishu-spacing-lg);
+            position: relative;
+        }
+
+        /* ========== 标题样式 ========== */
+        .feishu-heading {
+            position: relative;
+            padding-left: 0;
+            transition: padding-left var(--feishu-transition-fast);
+        }
+
+        .feishu-heading:hover {
+            padding-left: 24px;
+        }
+
+        .feishu-heading-h1 {
+            font-size: 26px;
+            font-weight: 500;
+            line-height: 1.4;
+            margin: var(--feishu-spacing-xl) 0 var(--feishu-spacing-md);
+        }
+
+        .feishu-heading-h2 {
+            font-size: 22px;
+            font-weight: 500;
+            line-height: 1.4;
+            margin: var(--feishu-spacing-lg) 0 var(--feishu-spacing-sm);
+        }
+
+        .feishu-heading-h3 {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 1.4;
+            margin: var(--feishu-spacing-md) 0 var(--feishu-spacing-sm);
+        }
+
+        /* ========== 折叠按钮 ========== */
+        .feishu-fold-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--feishu-radius-sm);
+            cursor: pointer;
+            opacity: 0;
+            transition: all var(--feishu-transition-fast);
+        }
+
+        .feishu-heading:hover .feishu-fold-btn {
+            opacity: 1;
+        }
+
+        .feishu-fold-btn:hover {
+            background: var(--feishu-bg-hover);
+        }
+
+        .feishu-fold-btn svg {
+            width: 16px;
+            height: 16px;
+            transition: transform var(--feishu-transition-fast);
+        }
+
+        .feishu-fold-btn.collapsed svg {
+            transform: rotate(-90deg);
+        }
+
+        /* ========== 段落 ========== */
+        .feishu-paragraph {
+            font-size: 16px;
+            line-height: 1.75;
+            margin-bottom: var(--feishu-spacing-md);
+            color: var(--feishu-text-primary);
+        }
+
+        /* ========== 列表 ========== */
+        .feishu-list {
+            margin: var(--feishu-spacing-md) 0;
+            padding-left: var(--feishu-spacing-2xl);
+        }
+
+        .feishu-list-item {
+            line-height: 1.75;
+            margin-bottom: var(--feishu-spacing-xs);
+        }
+
+        /* ========== 代码块 ========== */
+        .feishu-code-block {
+            background: #f5f6f7;
+            border-radius: var(--feishu-radius-lg);
+            padding: var(--feishu-spacing-lg);
+            margin: var(--feishu-spacing-lg) 0;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        /* ========== 引用块 ========== */
+        .feishu-quote {
+            border-left: 3px solid var(--feishu-border-divider);
+            padding-left: var(--feishu-spacing-lg);
+            margin: var(--feishu-spacing-lg) 0;
+            color: var(--feishu-text-secondary);
+            font-style: italic;
+        }
+
+        /* ========== 分割线 ========== */
+        .feishu-divider {
+            height: 1px;
+            background: var(--feishu-border-light);
+            margin: var(--feishu-spacing-2xl) 0;
+            border: none;
+        }
+
+        /* ========== 多列布局系统 ========== */
+        .feishu-grid-container {
+            display: flex;
+            position: relative;
+            margin: var(--feishu-spacing-xl) 0;
+            min-height: 100px;
+        }
+
+        /* 列容器 */
+        .feishu-grid-column {
+            flex-grow: 0;
+            flex-shrink: 0;
+            position: relative;
+            padding: var(--feishu-spacing-md);
+            background: transparent;
+            transition: background var(--feishu-transition-fast);
+        }
+
+        .feishu-grid-column:hover {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        /* 列宽百分比标签 */
+        .feishu-column-percent {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            z-index: 1;
+            padding: 0 4px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 12px;
+            line-height: 18px;
+            opacity: 0;
+            transition: opacity var(--feishu-transition-fast);
+        }
+
+        .feishu-grid-column:hover .feishu-column-percent {
+            opacity: 1;
+        }
+
+        /* 列分隔器 */
+        .feishu-column-gap {
+            position: relative;
+            width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: col-resize;
+        }
+
+        .feishu-column-gap-inner {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 分隔器拖拽手柄 */
+        .feishu-dragger {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: transparent;
+            transition: background var(--feishu-transition-fast);
+        }
+
+        .feishu-column-gap:hover .feishu-dragger {
+            background: #3370FF;
+        }
+
+        /* 分隔器点 */
+        .feishu-gap-dots {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity var(--feishu-transition-fast);
+        }
+
+        .feishu-column-gap:hover .feishu-gap-dots {
+            opacity: 1;
+        }
+
+        .feishu-gap-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #BBBFC4;
+        }
+
+        /* 添加列按钮 */
+        .feishu-add-column {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 22px;
+            height: 24px;
+            display: none;
+            cursor: pointer;
+            transition: transform var(--feishu-transition-fast);
+        }
+
+        .feishu-column-gap:hover .feishu-add-column {
+            display: block;
+        }
+
+        .feishu-add-column:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* 禁用的列分隔器（最后一个） */
+        .feishu-column-gap.disabled {
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .feishu-column-gap.disabled .feishu-add-column {
+            display: none;
+        }
+
+        /* ========== 有序列表 ========== */
+        .feishu-ordered-list {
+            margin: var(--feishu-spacing-sm) 0;
+        }
+
+        .feishu-list-wrapper {
+            display: flex;
+            align-items: baseline;
+            margin: 0 -2px;
+            padding: 0 2px;
+        }
+
+        .feishu-order-button {
+            flex: 0 0 auto;
+            min-width: 18px;
+            height: 20px;
+            margin-right: 6px;
+            padding: 0 2px;
+            border: none;
+            border-radius: 2px;
+            background: transparent;
+            color: rgb(20, 86, 240);
+            font-family: "Helvetica Neue", Consolas, monospace;
+            font-size: 16px;
+            line-height: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.1s ease-in;
+        }
+
+        .feishu-order-button:hover {
+            background: var(--feishu-bg-hover);
+        }
+
+        .feishu-list-content {
+            flex: 1 1 0px;
+            min-width: 1px;
+        }
+
+        /* 嵌套列表 */
+        .feishu-list-children {
+            padding-left: 18px;
+            margin-left: 7px;
+            border-left: 1px solid transparent;
+        }
+
+        .feishu-list-children:hover {
+            border-left-color: var(--feishu-border-light);
+        }
+
+        /* 列表折叠按钮 */
+        .feishu-list-fold {
+            position: absolute;
+            left: -20px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            cursor: pointer;
+            opacity: 0;
+            transition: all var(--feishu-transition-fast);
+        }
+
+        .feishu-list-wrapper:hover .feishu-list-fold {
+            opacity: 1;
+        }
+
+        .feishu-list-fold:hover {
+            background: var(--feishu-bg-hover);
+        }
+
+        .feishu-list-fold svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease-out;
+        }
+
+        .feishu-list-fold.collapsed svg {
+            transform: rotate(-90deg);
+        }
+
+        /* ========== 选中效果 ========== */
+        ::selection {
+            background: var(--feishu-bg-selection);
+        }
+
+        /* ========== 占位符（为Tiptap准备） ========== */
+        .feishu-editor-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: var(--feishu-text-placeholder);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ========== Tiptap集成预留类 ========== */
+        .tiptap-editor-container {
+            /* Tiptap编辑器将被挂载到这里 */
+            min-height: 400px;
+        }
+
+        /* Tiptap编辑器样式覆盖预留 */
+        .ProseMirror {
+            outline: none;
+        }
+
+        .ProseMirror p {
+            margin: 0 0 var(--feishu-spacing-md);
+        }
+
+        .ProseMirror h1 {
+            font-size: 26px;
+            font-weight: 500;
+            margin: var(--feishu-spacing-xl) 0 var(--feishu-spacing-md);
+        }
+
+        .ProseMirror h2 {
+            font-size: 22px;
+            font-weight: 500;
+            margin: var(--feishu-spacing-lg) 0 var(--feishu-spacing-sm);
+        }
+
+        .ProseMirror h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin: var(--feishu-spacing-md) 0 var(--feishu-spacing-sm);
+        }
+    </style>
+</head>
+<body>
+    <div class="feishu-editor-wrapper">
+        <!-- 工具栏 -->
+        <div class="feishu-editor-toolbar">
+            <button class="feishu-toolbar-btn">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M20.376 13h2.023c.066-.49.101-.991.101-1.5 0-6.075-4.925-11-11-11s-11 4.925-11 11 4.925 11 11 11c.509 0 1.01-.035 1.5-.101v-2.023A9 9 0 1 1 20.376 13Z" fill="currentColor"/>
+                    <path d="M14.5 8a1 1 0 0 0-1 1v1a1 1 0 1 0 2 0V9a1 1 0 0 0-1-1Zm-6 0a1 1 0 0 0-1 1v1a1 1 0 1 0 2 0V9a1 1 0 0 0-1-1Z" fill="currentColor"/>
+                </svg>
+                <span>添加图标</span>
+            </button>
+            <button class="feishu-toolbar-btn">
+                <svg viewBox="0 0 16 16" fill="none">
+                    <path d="M6.76 11.993l-2.85-.007a.2.2 0 01-.142-.341l2.755-2.756a.267.267 0 01.378 0l1.27 1.272 3.373-3.372a.267.267 0 01.455.189V11.8a.2.2 0 01-.2.2H6.815a.203.203 0 01-.056-.008zm-4.095 2.674c-.733 0-1.333-.6-1.333-1.333V2.667c0-.733.6-1.333 1.333-1.333h10.667c.733 0 1.333.6 1.333 1.333v10.667c0 .733-.6 1.333-1.333 1.333H2.665z" fill="currentColor"/>
+                </svg>
+                <span>添加封面</span>
+            </button>
+        </div>
+
+        <!-- 文档标题 -->
+        <h1 class="feishu-doc-title">飞书编辑器纯UI版</h1>
+
+        <!-- 文档元信息 -->
+        <div class="feishu-doc-meta">
+            <div class="feishu-meta-group">
+                <div class="feishu-meta-author">
+                    <div class="feishu-avatar">U</div>
+                    <span class="feishu-meta-text">用户</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="m17.57 7.244-.006-.006.37-.37a1 1 0 0 0 .001-1.412l-3.434-3.453-.002-.002a1 1 0 0 0-1.414 0l-.705.706.01.01L2 13.186V17a1 1 0 0 0 1 1h3.814L17.57 7.244Z" fill="currentColor"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="feishu-meta-group">
+                <span class="feishu-meta-text">今天修改</span>
+            </div>
+        </div>
+
+        <!-- 内容区域 - 为Tiptap预留 -->
+        <div class="tiptap-editor-container">
+            <!-- 示例内容 - Tiptap集成后会被替换 -->
+            <div class="feishu-content-block">
+                <div class="feishu-heading feishu-heading-h1">
+                    <span class="feishu-fold-btn">
+                        <svg viewBox="0 0 16 16" fill="none">
+                            <path d="M7.712 11.351L3.34 5.9a.45.45 0 010-.538.278.278 0 01.215-.112h8.89c.168 0 .305.17.305.381a.432.432 0 01-.09.269l-4.372 5.451c-.159.199-.417.199-.576 0z" fill="#2B2F36"/>
+                        </svg>
+                    </span>
+                    一级标题示例
+                </div>
+            </div>
+
+            <div class="feishu-content-block">
+                <p class="feishu-paragraph">
+                    这是一个为Tiptap集成准备的纯UI版本。所有样式都已经提取为CSS变量，方便后续与Tiptap编辑器集成。
+                </p>
+            </div>
+
+            <div class="feishu-content-block">
+                <div class="feishu-heading feishu-heading-h2">
+                    <span class="feishu-fold-btn">
+                        <svg viewBox="0 0 16 16" fill="none">
+                            <path d="M7.712 11.351L3.34 5.9a.45.45 0 010-.538.278.278 0 01.215-.112h8.89c.168 0 .305.17.305.381a.432.432 0 01-.09.269l-4.372 5.451c-.159.199-.417.199-.576 0z" fill="#2B2F36"/>
+                        </svg>
+                    </span>
+                    二级标题示例
+                </div>
+            </div>
+
+            <div class="feishu-content-block">
+                <ul class="feishu-list">
+                    <li class="feishu-list-item">CSS变量系统已完善</li>
+                    <li class="feishu-list-item">预留了Tiptap样式覆盖</li>
+                    <li class="feishu-list-item">保持飞书视觉风格</li>
+                </ul>
+            </div>
+
+            <div class="feishu-content-block">
+                <div class="feishu-code-block">
+// Tiptap集成示例代码
+import { Editor } from '@tiptap/core'
+import StarterKit from '@tiptap/starter-kit'
+
+const editor = new Editor({
+  element: document.querySelector('.tiptap-editor-container'),
+  extensions: [StarterKit],
+  content: '<p>Hello World!</p>',
+})
+                </div>
+            </div>
+
+            <div class="feishu-content-block">
+                <blockquote class="feishu-quote">
+                    这个纯UI版本可以直接作为Tiptap的样式基础，无需重构。
+                </blockquote>
+            </div>
+
+            <hr class="feishu-divider">
+
+            <div class="feishu-content-block">
+                <div class="feishu-heading feishu-heading-h3">
+                    三级标题示例
+                </div>
+                <p class="feishu-paragraph">
+                    所有交互效果都通过CSS实现，不依赖JavaScript编辑逻辑，便于后续集成。
+                </p>
+            </div>
+
+            <hr class="feishu-divider">
+
+            <!-- 多列布局示例 -->
+            <div class="feishu-content-block">
+                <div class="feishu-heading feishu-heading-h2">
+                    多列内容展示
+                </div>
+            </div>
+
+            <div class="feishu-grid-container">
+                <!-- 第一列 26% -->
+                <div class="feishu-grid-column" style="width: calc(26% - 9px);">
+                    <span class="feishu-column-percent">26%</span>
+
+                    <!-- 有序列表 -->
+                    <div class="feishu-ordered-list">
+                        <div class="feishu-list-wrapper" style="position: relative;">
+                            <span class="feishu-list-fold">
+                                <svg viewBox="0 0 16 16" fill="none">
+                                    <path d="M7.712 11.351L3.34 5.9a.45.45 0 010-.538.278.278 0 01.215-.112h8.89c.168 0 .305.17.305.381a.432.432 0 01-.09.269l-4.372 5.451c-.159.199-.417.199-.576 0z" fill="#2B2F36"/>
+                                </svg>
+                            </span>
+                            <button class="feishu-order-button">1.</button>
+                            <div class="feishu-list-content">
+                                <div class="feishu-paragraph">第一项内容</div>
+                            </div>
+                        </div>
+
+                        <!-- 嵌套列表 -->
+                        <div class="feishu-list-children">
+                            <div class="feishu-list-wrapper" style="position: relative;">
+                                <span class="feishu-list-fold">
+                                    <svg viewBox="0 0 16 16" fill="none">
+                                        <path d="M7.712 11.351L3.34 5.9a.45.45 0 010-.538.278.278 0 01.215-.112h8.89c.168 0 .305.17.305.381a.432.432 0 01-.09.269l-4.372 5.451c-.159.199-.417.199-.576 0z" fill="#2B2F36"/>
+                                    </svg>
+                                </span>
+                                <button class="feishu-order-button">a.</button>
+                                <div class="feishu-list-content">
+                                    <div class="feishu-paragraph">子项内容</div>
+                                </div>
+                            </div>
+
+                            <!-- 三级嵌套 -->
+                            <div class="feishu-list-children">
+                                <div class="feishu-list-wrapper">
+                                    <button class="feishu-order-button">i.</button>
+                                    <div class="feishu-list-content">
+                                        <div class="feishu-paragraph">三级内容</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="feishu-list-wrapper">
+                                <button class="feishu-order-button">b.</button>
+                                <div class="feishu-list-content">
+                                    <div class="feishu-paragraph">第二个子项</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 列分隔器 -->
+                <div class="feishu-column-gap">
+                    <div class="feishu-column-gap-inner">
+                        <div class="feishu-dragger"></div>
+                        <div class="feishu-gap-dots">
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                        </div>
+                        <svg class="feishu-add-column" viewBox="0 0 22 24" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 第二列 41% -->
+                <div class="feishu-grid-column" style="width: calc(41% - 15px);">
+                    <span class="feishu-column-percent">41%</span>
+
+                    <div class="feishu-ordered-list">
+                        <div class="feishu-list-wrapper">
+                            <button class="feishu-order-button">1.</button>
+                            <div class="feishu-list-content">
+                                <div class="feishu-paragraph">中间列的内容</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="feishu-paragraph">
+                        这一列占据了41%的宽度，是三列中最宽的一列。可以放置更多的内容。
+                    </p>
+                </div>
+
+                <!-- 列分隔器 -->
+                <div class="feishu-column-gap">
+                    <div class="feishu-column-gap-inner">
+                        <div class="feishu-dragger"></div>
+                        <div class="feishu-gap-dots">
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                        </div>
+                        <svg class="feishu-add-column" viewBox="0 0 22 24" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 第三列 33% -->
+                <div class="feishu-grid-column" style="width: calc(33% - 12px);">
+                    <span class="feishu-column-percent">33%</span>
+
+                    <div class="feishu-heading feishu-heading-h3">
+                        列标题
+                    </div>
+
+                    <p class="feishu-paragraph">
+                        第三列的内容。支持各种内容块，包括标题、段落、列表等。
+                    </p>
+
+                    <ul class="feishu-list">
+                        <li class="feishu-list-item">项目一</li>
+                        <li class="feishu-list-item">项目二</li>
+                        <li class="feishu-list-item">项目三</li>
+                    </ul>
+                </div>
+
+                <!-- 最后的分隔器（禁用状态） -->
+                <div class="feishu-column-gap disabled">
+                    <div class="feishu-column-gap-inner">
+                        <div class="feishu-dragger"></div>
+                        <div class="feishu-gap-dots">
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 两列布局示例 -->
+            <div class="feishu-content-block">
+                <div class="feishu-heading feishu-heading-h2">
+                    两列布局示例
+                </div>
+            </div>
+
+            <div class="feishu-grid-container">
+                <!-- 第一列 50% -->
+                <div class="feishu-grid-column" style="width: calc(50% - 18px);">
+                    <span class="feishu-column-percent">50%</span>
+
+                    <div class="feishu-heading feishu-heading-h3">
+                        左侧内容
+                    </div>
+
+                    <p class="feishu-paragraph">
+                        两列布局适合对比内容或并列展示信息。这种布局在飞书文档中非常常见。
+                    </p>
+
+                    <div class="feishu-code-block">
+// 左侧代码示例
+function leftColumn() {
+  return "左侧内容";
+}
+                    </div>
+                </div>
+
+                <!-- 列分隔器 -->
+                <div class="feishu-column-gap">
+                    <div class="feishu-column-gap-inner">
+                        <div class="feishu-dragger"></div>
+                        <div class="feishu-gap-dots">
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                        </div>
+                        <svg class="feishu-add-column" viewBox="0 0 22 24" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 第二列 50% -->
+                <div class="feishu-grid-column" style="width: calc(50% - 18px);">
+                    <span class="feishu-column-percent">50%</span>
+
+                    <div class="feishu-heading feishu-heading-h3">
+                        右侧内容
+                    </div>
+
+                    <p class="feishu-paragraph">
+                        右侧可以展示对应的内容、示例或补充信息。列的宽度可以通过拖拽分隔器调整。
+                    </p>
+
+                    <blockquote class="feishu-quote">
+                        Tiptap集成后，这些多列布局将支持实时拖拽调整宽度。
+                    </blockquote>
+                </div>
+
+                <!-- 最后的分隔器（禁用状态） -->
+                <div class="feishu-column-gap disabled">
+                    <div class="feishu-column-gap-inner">
+                        <div class="feishu-dragger"></div>
+                        <div class="feishu-gap-dots">
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                            <div class="feishu-gap-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 仅处理折叠按钮动画，不涉及编辑逻辑
+        document.querySelectorAll('.feishu-fold-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('collapsed');
+            });
+        });
+
+        // 列表折叠按钮
+        document.querySelectorAll('.feishu-list-fold').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('collapsed');
+                // 这里可以添加实际的折叠逻辑
+            });
+        });
+
+        // 模拟列宽调整视觉效果（实际拖拽需要Tiptap集成后实现）
+        document.querySelectorAll('.feishu-column-gap:not(.disabled)').forEach(gap => {
+            gap.addEventListener('mouseenter', function() {
+                const prevColumn = this.previousElementSibling;
+                const nextColumn = this.nextElementSibling;
+                if (prevColumn && prevColumn.classList.contains('feishu-grid-column')) {
+                    prevColumn.style.borderRight = '1px dashed #3370FF';
+                }
+                if (nextColumn && nextColumn.classList.contains('feishu-grid-column')) {
+                    nextColumn.style.borderLeft = '1px dashed #3370FF';
+                }
+            });
+
+            gap.addEventListener('mouseleave', function() {
+                const prevColumn = this.previousElementSibling;
+                const nextColumn = this.nextElementSibling;
+                if (prevColumn && prevColumn.classList.contains('feishu-grid-column')) {
+                    prevColumn.style.borderRight = '';
+                }
+                if (nextColumn && nextColumn.classList.contains('feishu-grid-column')) {
+                    nextColumn.style.borderLeft = '';
+                }
+            });
+        });
+
+        // Tiptap集成点
+        // 这里将是Tiptap初始化的地方
+        console.log('飞书编辑器纯UI版 - Ready for Tiptap Integration');
+    </script>
+</body>
+</html>

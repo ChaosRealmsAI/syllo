@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书菜单组件</title>
+    <style>
+        :root {
+            /* 颜色变量定义 */
+            --text-primary: rgb(43, 47, 54);
+            --text-secondary: rgb(143, 149, 158);
+            --text-title: rgb(31, 35, 41);
+            --text-muted: rgb(100, 106, 115);
+            --brand-blue: rgb(51, 109, 244);
+            --brand-indigo: rgb(91, 101, 245);
+            --brand-blue-dark: rgb(20, 86, 240);
+            --brand-green: rgb(50, 166, 69);
+            --brand-purple: rgb(223, 88, 165);
+            --brand-violet: rgb(141, 85, 237);
+            --brand-orange: rgb(255, 129, 26);
+            --brand-purple-light: rgb(164, 94, 235);
+            --brand-cyan: rgb(37, 176, 231);
+            --brand-teal: rgb(45, 190, 171);
+            --background-muted: rgba(31, 35, 41, 0.1);
+            --brand-yellow: rgb(255, 198, 10);
+            --brand-green-light: rgb(52, 199, 36);
+
+            /* 字体族 */
+            --font-family: LarkHackSafariFont, LarkEmojiFont, LarkChineseQuote, -apple-system, "system-ui", "Helvetica Neue", Tahoma, "PingFang SC", "Microsoft Yahei", Arial, "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: var(--font-family);
+            background-color: #f5f5f5;
+        }
+
+        .docx-menu-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 280px; /* 调整为更窄的宽度 */
+            padding: 4px 0;
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .menu-title-item.panel-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 400;
+            cursor: default;
+            user-select: none;
+            margin: 4px 0;
+        }
+
+        .flatten-item-list {
+            display: grid;
+            grid-template-columns: repeat(6, 24px);
+            justify-content: space-between;
+            margin: 0 0 -4px 0;
+            padding: 0 12px;
+            gap: 8px;
+        }
+
+        .flatten-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+            line-height: 24px;
+            text-align: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .flatten-item:hover {
+            background-color: var(--background-muted);
+        }
+
+        .panel-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 32px;
+        }
+
+        .panel-menu-item:hover {
+            background-color: var(--background-muted);
+        }
+
+        .menu-item-content {
+            display: flex;
+            flex: 1;
+            align-items: center;
+        }
+
+        .menu-icon.show-icon-color {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 24px;
+            min-width: 24px;
+            font-size: 18px;
+            margin-right: 4px;
+        }
+
+        .menu-item-main-box-wrapper {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .menu-item-main-box {
+            display: flex;
+            align-items: center;
+            height: 24px;
+        }
+
+        .menu-text {
+            display: block;
+            position: relative;
+            flex: 1;
+            width: 100%;
+            color: var(--text-title);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 22px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .menu-text-flex {
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-old-tag {
+            display: flex;
+            height: 16px;
+            max-width: 120px;
+            margin-left: 4px;
+            padding: 0 2px;
+            border-radius: 4px;
+            background-color: var(--background-muted);
+        }
+
+        .menu-old-tag-text {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 16px;
+        }
+
+        .item-arrow {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-left: 4px;
+        }
+
+        .universe-icon {
+            display: inline-block;
+            line-height: 1;
+        }
+
+        .universe-icon svg {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+        }
+
+        .menu_ud_icon {
+            display: block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .flatten-item .menu_ud_icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 颜色类 */
+        .color-b-500 { color: var(--text-secondary); }
+        .color-i-500 { color: var(--text-secondary); }
+        .color-g-500 { color: var(--text-secondary); }
+        .color-o-500 { color: var(--text-secondary); }
+        .color-y-500 { color: var(--text-secondary); }
+        .color-w-500 { color: var(--text-secondary); }
+        .color-t-500 { color: var(--text-secondary); }
+        .color-bitable-brand { color: var(--brand-violet); }
+        .color-b-600 { color: var(--text-secondary); }
+        .colorful-indigo { color: var(--brand-indigo); }
+
+        /* 特殊图标样式 */
+        img.menu-icon-img {
+            width: 22px;
+            height: 22px;
+            border-radius: 2px;
+        }
+
+        /* 新子文档样式 */
+        .newChildDoc-item .menu_ud_icon {
+            color: var(--brand-blue);
+        }
+
+        /* 表格、分栏等子菜单样式 */
+        .panel-submenu-item.no-click-action {
+            cursor: pointer;
+        }
+
+        /* Tooltip样式 */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 子菜单样式 */
+        .submenu-container {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            margin-left: 4px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            padding: 4px 0;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(-10px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+
+        .submenu-container.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+
+        .panel-submenu-item {
+            position: relative;
+        }
+
+        .submenu-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 32px;
+            white-space: nowrap;
+        }
+
+        .submenu-item:hover {
+            background-color: var(--background-muted);
+        }
+
+        .submenu-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            color: var(--text-secondary);
+        }
+
+        .submenu-text {
+            flex: 1;
+            color: var(--text-title);
+            font-size: 14px;
+            line-height: 20px;
+        }
+
+        .submenu-divider {
+            height: 1px;
+            background-color: var(--background-muted);
+            margin: 4px 0;
+        }
+
+        /* 表格子菜单的特殊样式 */
+        .table-submenu {
+            padding: 8px;
+        }
+
+        .table-grid-selector {
+            display: grid;
+            grid-template-columns: repeat(8, 20px);
+            grid-template-rows: repeat(8, 20px);
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+
+        .table-grid-cell {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .table-grid-cell.highlighted {
+            background-color: rgba(51, 109, 244, 0.1);
+            border-color: var(--brand-blue);
+        }
+
+        .table-grid-info {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 320px) {
+            .docx-menu-container {
+                width: 260px;
+                margin: 0 10px;
+            }
+
+            .flatten-item-list {
+                padding: 0 8px;
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="docx-menu-container">
+        <!-- 基础部分 -->
+        <div class="menu-title-item panel-menu-item" data-name="基础">基础</div>
+        <div class="flatten-item-list">
+            <div class="flatten-item" data-name="slash heading1" data-tooltip="标题1">
+                <span class="universe-icon menu_ud_icon color-b-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="H1Outlined">
+                        <path d="M2 3a1 1 0 0 0-1 1v16a1 1 0 1 0 2 0v-7h9v7a1 1 0 1 0 2 0V4a1 1 0 1 0-2 0v7H3V4a1 1 0 0 0-1-1Zm15.604 9.91a.4.4 0 0 1-.585-.355c0-.533 0-.774.004-1.582a.4.4 0 0 1 .203-.347l2.769-1.568A.39.39 0 0 1 20.197 9h1.404c.234 0 .423.21.423.468V19.95c0 .593-.483 1.073-1.075 1.073a1.07 1.07 0 0 1-1.07-1.073v-8.228l-2.275 1.19Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash heading2" data-tooltip="标题2">
+                <span class="universe-icon menu_ud_icon color-b-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="H2Outlined">
+                        <path d="M2 3a1 1 0 0 0-1 1v16a1 1 0 1 0 2 0v-7h9v7a1 1 0 1 0 2 0V4a1 1 0 1 0-2 0v7H3V4a1 1 0 0 0-1-1Zm20.993 16.872c0-.561-.455-1.015-1.017-1.015h-3.121l3.407-4.272a3.35 3.35 0 0 0 .731-2.126c-.01-.992-.347-1.816-1.005-2.464-.647-.651-1.492-.984-2.523-.995-.931.011-1.72.34-2.356.982-.37.386-.941 1.044-.941 1.602 0 .591.48 1.07 1.07 1.07.563 0 .769-.347.993-.726.06-.101.12-.204.19-.304a1.36 1.36 0 0 1 .186-.214c.262-.252.584-.376.982-.376.447.01.784.15 1.02.423.234.28.35.606.35.987 0 .146-.019.303-.057.471-.05.152-.156.341-.315.548l-4.402 5.506a.4.4 0 0 0-.087.25v1.022c0 .221.267.65.606.65h5.272c.562 0 1.017-.457 1.017-1.019Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash heading3" data-tooltip="标题3">
+                <span class="universe-icon menu_ud_icon color-b-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="H3Outlined">
+                        <path d="M2 3a1 1 0 0 0-1 1v16a1 1 0 1 0 2 0v-7h9v7a1 1 0 1 0 2 0V4a1 1 0 1 0-2 0v7H3V4a1 1 0 0 0-1-1Zm21 14.296c0-.51-.108-.998-.324-1.461a2.923 2.923 0 0 0-.877-1.044c.377-.297.65-.63.816-1.001.17-.44.252-.886.252-1.348a3.48 3.48 0 0 0-.943-2.385C21.274 9.363 20.398 9.01 19.31 9a3.179 3.179 0 0 0-2.251.932c-.349.336-.848.879-.848 1.384a1 1 0 0 0 1 1c.482 0 .767-.352 1.043-.692l.09-.11c.057-.07.121-.132.192-.185.256-.2.53-.296.834-.296.431.01.779.144 1.049.405.267.267.406.61.415 1.04 0 .417-.133.75-.4 1.008-.335.335-.766.387-1.212.387a.958.958 0 1 0 0 1.917h.088c.452-.002.824-.003 1.205.353.29.277.442.674.452 1.201-.01.51-.16.894-.451 1.162-.296.296-.65.44-1.076.44-.4 0-.712-.107-.944-.316l-.008-.008a8.055 8.055 0 0 1-.213-.207c-.1-.099-.178-.207-.254-.31-.193-.264-.366-.5-.81-.5a1 1 0 0 0-1 1c0 .574.543 1.19.954 1.533.635.53 1.35.84 2.174.84 1.057-.01 1.93-.35 2.609-1.018.69-.651 1.04-1.545 1.052-2.664Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash ordered" data-tooltip="有序列表">
+                <span class="universe-icon menu_ud_icon color-i-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="OrderListOutlined">
+                        <path d="M4.577 1.809a.543.543 0 0 0-.819-.469l-.502.296-.004.003-.309.187c-.342.207-.858.519-1.142.701a.573.573 0 0 0-.261.485c0 .482.544.774.948.522.227-.141.465-.287.642-.395v3.478a.723.723 0 1 0 1.447 0V1.81Zm-.899 7.128c-1.233 0-2.056.817-2.056 1.84a.25.25 0 0 0 .25.251h.891a.259.259 0 0 0 .26-.259c0-.32.227-.589.608-.589a.62.62 0 0 1 .428.15.52.52 0 0 1 .16.396c0 .315-.188.579-.538.949l-1.815 1.968a.672.672 0 0 0 .494 1.127h3.003a.63.63 0 0 0 0-1.26H3.744l.933-1.047c.61-.652.99-1.127.99-1.834a1.57 1.57 0 0 0-.563-1.226c-.356-.3-.852-.466-1.426-.466Zm.015 7.429c-1.006 0-1.692.478-1.946 1.178a.541.541 0 0 0 .107.553c.122.137.307.22.503.22a.773.773 0 0 0 .478-.18c.125-.098.23-.222.312-.33.096-.124.257-.224.511-.224.21 0 .37.063.472.152a.46.46 0 0 1 .16.359v.002a.503.503 0 0 1-.165.391.71.71 0 0 1-.483.16h-.14a.606.606 0 1 0 0 1.213h.168c.275 0 .468.074.59.178a.538.538 0 0 1 .186.42.554.554 0 0 1-.185.435c-.122.107-.314.184-.583.184-.32 0-.528-.114-.644-.264a1.776 1.776 0 0 0-.308-.323.766.766 0 0 0-.47-.174.678.678 0 0 0-.504.22.549.549 0 0 0-.114.55c.244.717.926 1.22 2.012 1.22.602 0 1.161-.168 1.575-.478.416-.311.683-.768.676-1.323-.01-.69-.376-1.122-.793-1.332.34-.231.63-.644.621-1.224-.019-.962-.92-1.583-2.036-1.583ZM8 4a1 1 0 0 1 1-1h13a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm0 8a1 1 0 0 1 1-1h13a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm0 8a1 1 0 0 1 1-1h13a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash bullet" data-tooltip="无序列表">
+                <span class="universe-icon menu_ud_icon color-i-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="DisorderListOutlined">
+                        <path d="M3.5 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM9 3a1 1 0 0 0 0 2h13a1 1 0 1 0 0-2H9Zm0 8a1 1 0 1 0 0 2h13a1 1 0 1 0 0-2H9Zm-1 9a1 1 0 0 1 1-1h13a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1Zm-3-8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-1.5 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash todo" data-tooltip="任务">
+                <span class="universe-icon menu_ud_icon color-i-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="TodoOutlined">
+                        <path d="M17.207 10.207a1 1 0 0 0-1.414-1.414L11 13.586l-2.293-2.293a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l5.5-5.5Z" fill="currentColor"></path>
+                        <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2 0v16h16V4H4Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash code" data-tooltip="代码块">
+                <span class="universe-icon menu_ud_icon color-g-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="CodeblockOutlined">
+                        <path d="M7.856 1.753c.49 0 .888.447.888.938 0 .49-.398.84-.888.84h-.644c-.844 0-1.244.46-1.244 1.425v4.301c0 1.086-.41 1.892-1.219 2.407-.23.147-.239.543-.01.694.815.542 1.23 1.33 1.23 2.385v4.322c0 .922.399 1.405 1.243 1.405h.644c.49 0 .888.423.888.914 0 .49-.398.863-.888.863H6.812c-.977 0-1.732-.33-2.266-.944-.488-.57-.733-1.36-.733-2.325v-4.126c0-.636-.133-1.097-.4-1.382-.164-.185-.857-.323-1.494-.418-.531-.08-.933-.523-.923-1.06.01-.533.403-.98.93-1.06.633-.095 1.325-.23 1.488-.402.266-.307.4-.768.4-1.383V5.044c0-.987.244-1.777.732-2.348.534-.636 1.289-.943 2.266-.943h1.044Zm8.434 20.494c-.49 0-.888-.447-.888-.938 0-.49.397-.84.888-.84h.644c.844 0 1.244-.46 1.244-1.425v-4.301c0-1.086.41-1.892 1.219-2.407.23-.147.238-.543.01-.694-.816-.542-1.23-1.33-1.23-2.385V4.935c0-.922-.4-1.405-1.243-1.405h-.644c-.49 0-.888-.423-.888-.914 0-.49.397-.863.888-.863h1.044c.977 0 1.732.33 2.265.944.489.57.733 1.36.733 2.325v4.126c0 .636.134 1.097.4 1.382.16.18.764.32 1.343.419.53.09.932.533.922 1.07a1.1 1.1 0 0 1-.929 1.063c-.575.092-1.177.22-1.336.388-.266.307-.4.768-.4 1.382v4.104c0 .987-.244 1.777-.733 2.348-.533.636-1.288.943-2.265.943H16.29Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash quote" data-tooltip="引用">
+                <span class="universe-icon menu_ud_icon color-b-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="ReferenceOutlined">
+                        <path d="M6.865 21C4.275 21 2 18.88 2 15.037c0-4.5 3.143-9.725 6.518-12.422a.888.888 0 0 1 1.203.107c.398.424.32 1.11-.112 1.5-2.412 2.17-5.32 6.855-5.153 9.055.215-.113 1.277-.516 2.801-.516 2.197 0 3.845 1.726 3.845 4.002A4.22 4.22 0 0 1 6.865 21Zm10.898 0c-2.59 0-4.865-2.119-4.865-5.963 0-4.5 3.143-9.725 6.518-12.422a.888.888 0 0 1 1.203.107c.398.424.32 1.11-.112 1.5-2.412 2.17-5.32 6.855-5.153 9.055.215-.113 1.277-.516 2.801-.516 2.197 0 3.845 1.726 3.845 4.002A4.22 4.22 0 0 1 17.763 21Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash callout" data-tooltip="高亮块">
+                <span class="universe-icon menu_ud_icon color-o-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="CalloutOutlined">
+                        <path d="M4 2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Zm16 2v6H4V4h16ZM3 16a1 1 0 0 1 1-1h16a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm1 4a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H4Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="synced block" data-tooltip="同步块">
+                <span class="menu_ud_icon universe-icon">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" data-icon="LinkRecordOutlined">
+                        <defs>
+                            <linearGradient id="icon_synced_block_gradient_svg__a" x1="0%" y1="0%" x2="50%" y2="100%">
+                                <stop offset="0%" stop-color="var(--brand-blue)"></stop>
+                                <stop offset="50%" stop-color="var(--brand-indigo)"></stop>
+                                <stop offset="100%" stop-color="var(--text-secondary)"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M14 5H3v8h3v2H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v8a2 2 0 01-2 2h-2v-2h2V5zm-4 4h2v2h-2v8h11v-8h-3V9h3a2 2 0 012 2v8a2 2 0 01-2 2H10a2 2 0 01-2-2v-8a2 2 0 012-2z" fill="url(#icon_synced_block_gradient_svg__a)"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="slash divider" data-tooltip="分割线">
+                <span class="universe-icon menu_ud_icon color-o-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="DividerOutlined">
+                        <path d="M9.5 4a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm0 16a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1ZM3 11a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2H3Zm14-7a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm1 15a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3ZM2 4a1 1 0 0 1 1-1h3a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1Zm1 15a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2H3Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+            <div class="flatten-item" data-name="link" data-tooltip="链接">
+                <span class="universe-icon menu_ud_icon color-b-500">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="GlobalLinkOutlined">
+                        <path d="M18.849 2.699a5.037 5.037 0 0 0-7.1.97L8.97 7.372a4.784 4.784 0 0 0 .957 6.699l.972.729a1 1 0 0 0 1.2-1.6l-.972-.73a2.784 2.784 0 0 1-.557-3.898l2.777-3.703a3.037 3.037 0 1 1 4.8 3.72l-1.429 1.786a1 1 0 1 0 1.562 1.25l1.43-1.788a5.037 5.037 0 0 0-.862-7.138Z" fill="currentColor"></path>
+                        <path d="M5.152 21.301a5.037 5.037 0 0 0 7.1-.97l2.777-3.703a4.784 4.784 0 0 0-.957-6.699L13.1 9.2a1 1 0 0 0-1.2 1.6l.973.73a2.784 2.784 0 0 1 .556 3.898l-2.777 3.703a3.037 3.037 0 1 1-4.8-3.72l1.429-1.786a1 1 0 0 0-1.562-1.25l-1.43 1.787a5.037 5.037 0 0 0 .863 7.14Z" fill="currentColor"></path>
+                    </svg>
+                </span>
+            </div>
+        </div>
+
+        <!-- 常用部分 -->
+        <div class="menu-title-item panel-menu-item" data-name="常用">常用</div>
+        <div class="panel-menu-item" data-name="slash todo">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-i-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="TodoOutlined">
+                            <path d="M17.207 10.207a1 1 0 0 0-1.414-1.414L11 13.586l-2.293-2.293a1 1 0 0 0-1.414 1.414l3 3a1 1 0 0 0 1.414 0l5.5-5.5Z" fill="currentColor"></path>
+                            <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2 0v16h16V4H4Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">任务</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="slash image">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-y-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="ImageOutlined">
+                            <path d="m10.141 17.988-4.275-.01a.3.3 0 0 1-.212-.512l4.133-4.133a.4.4 0 0 1 .566 0l1.907 1.907 5.057-5.057a.4.4 0 0 1 .683.283V17.7a.3.3 0 0 1-.3.3h-7.476a.301.301 0 0 1-.083-.012ZM4 22c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4Zm0-2h16V4H4v16ZM6 6h3v3H6V6Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">图片</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="slash file">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-w-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="AttachmentOutlined">
+                            <path d="M12.304 7.315a1 1 0 0 1 1.414 1.414L8.13 14.317a1.485 1.485 0 0 0 0 2.1l.01.011a1.5 1.5 0 0 0 2.117-.005l7.43-7.43a3.5 3.5 0 0 0 0-4.95l-.036-.037a3.5 3.5 0 0 0-4.95 0l-7.778 7.777a5.521 5.521 0 0 0 7.808 7.809l7.07-7.07a1 1 0 0 1 1.415 1.414l-7.07 7.07A7.521 7.521 0 0 1 3.509 10.37l7.778-7.778a5.5 5.5 0 0 1 7.778 0l.037.037a5.5 5.5 0 0 1 0 7.778l-7.43 7.43a3.5 3.5 0 0 1-4.939.012l-.006-.006-.012-.012a3.485 3.485 0 0 1 0-4.928l5.589-5.588Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">视频或文件</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-submenu-item no-click-action panel-menu-item" data-name="table">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-t-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="DataSheetOutlined">
+                            <path d="M19.5 4.25v15.5H4V4.25h15.5ZM4 2.25a2 2 0 0 0-2 2v15.5a2 2 0 0 0 2 2h15.5a2 2 0 0 0 2-2V4.25a2 2 0 0 0-2-2H4Z" fill="currentColor"></path>
+                            <path d="M9.997 4.25v3.835H19.5v2H9.997v3.83H19.5v2H9.997v3.835h-2v-3.835H4v-2h3.997v-3.83H4v-2h3.997V4.25h2Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">表格</div>
+                        <div class="item-arrow">
+                            <span class="universe-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="RightSmallCcmOutlined">
+                                    <path d="M7.293 4.293a1 1 0 0 0 0 1.414L13.586 12l-6.293 6.293a1 1 0 1 0 1.414 1.414l7-7a1 1 0 0 0 0-1.414l-7-7a1 1 0 0 0-1.414 0Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 表格子菜单 -->
+            <div class="submenu-container" id="table-submenu">
+                <div class="table-submenu">
+                    <div class="table-grid-selector" id="table-grid">
+                        <!-- 动态生成的表格网格 -->
+                    </div>
+                    <div class="table-grid-info" id="table-info">插入表格</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-submenu-item no-click-action panel-menu-item" data-name="slash grid">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-i-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="DocColumnsOutlined">
+                            <path d="M11 5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2V5ZM4 5h5v14H4V5Zm18 0a2 2 0 0 0-2-2h-5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2V5Zm-7 0h5v14h-5V5Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">分栏</div>
+                        <div class="item-arrow">
+                            <span class="universe-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="RightSmallCcmOutlined">
+                                    <path d="M7.293 4.293a1 1 0 0 0 0 1.414L13.586 12l-6.293 6.293a1 1 0 1 0 1.414 1.414l7-7a1 1 0 0 0 0-1.414l-7-7a1 1 0 0 0-1.414 0Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 分栏子菜单 -->
+            <div class="submenu-container" id="grid-submenu">
+                <div class="submenu-item" data-columns="2">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="8" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="13" y="3" width="8" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">两栏</div>
+                </div>
+                <div class="submenu-item" data-columns="3">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <rect x="2" y="3" width="6" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="9" y="3" width="6" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="16" y="3" width="6" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">三栏</div>
+                </div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-layout="left-right">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="6" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="11" y="3" width="10" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">左侧栏</div>
+                </div>
+                <div class="submenu-item" data-layout="right-left">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="10" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                            <rect x="15" y="3" width="6" height="18" stroke="currentColor" stroke-width="2" rx="1"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">右侧栏</div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="slash callout">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-o-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="CalloutOutlined">
+                            <path d="M4 2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4Zm16 2v6H4V4h16ZM3 16a1 1 0 0 1 1-1h16a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1Zm1 4a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H4Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">高亮块</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="synced block">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="menu_ud_icon universe-icon">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" data-icon="LinkRecordOutlined">
+                            <defs>
+                                <linearGradient id="icon_synced_block_gradient_svg__b" x1="0%" y1="0%" x2="50%" y2="100%">
+                                    <stop offset="0%" stop-color="var(--brand-blue)"></stop>
+                                    <stop offset="50%" stop-color="var(--brand-indigo)"></stop>
+                                    <stop offset="100%" stop-color="var(--text-secondary)"></stop>
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 5H3v8h3v2H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v8a2 2 0 01-2 2h-2v-2h2V5zm-4 4h2v2h-2v8h11v-8h-3V9h3a2 2 0 012 2v8a2 2 0 01-2 2H10a2 2 0 01-2-2v-8a2 2 0 012-2z" fill="url(#icon_synced_block_gradient_svg__b)"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">同步块</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="newChildDoc-item panel-menu-item" data-name="newChildDoc">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" class="menu_ud_icon">
+                        <path d="M14.25 2.25H3.75v13.5H7.5v1.5H3.75a1.5 1.5 0 01-1.5-1.5V2.25a1.5 1.5 0 011.5-1.5h10.5a1.5 1.5 0 011.5 1.5v6h-1.5v-6z" fill="currentColor"></path>
+                        <path d="M5.25 5.813a.75.75 0 01.75-.75h6a.75.75 0 010 1.5H6a.75.75 0 01-.75-.75zM6 8.813a.75.75 0 000 1.5h6a.75.75 0 000-1.5H6zM14.25 11.25a.75.75 0 00-1.5 0v2.25H10.5a.75.75 0 000 1.5h2.25v2.25a.75.75 0 001.5 0V15h2.25a.75.75 0 000-1.5h-2.25v-2.25z" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">子文档</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 多维表格部分 -->
+        <div class="menu-title-item panel-menu-item" data-name="多维表格">多维表格</div>
+        <div class="panel-menu-item" data-name="bitable GridView">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon" style="color: rgb(20, 86, 240);">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="BitablegridOutlined">
+                            <path d="M2 4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm7.5 0v4H20V4H9.5Zm0 6v4H20v-4H9.5Zm-2 4v-4H4v4h3.5ZM4 16v4h3.5v-4H4Zm5.5 0v4H20v-4H9.5Zm-2-12H4v4h3.5V4Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">表格</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="bitable Kanban">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon" style="color: rgb(50, 166, 69);">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="BitablekanbanOutlined">
+                            <path d="M4 16.5h4V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-7.5h4a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2ZM8 4v10.5H4V4h4Zm6 0v16h-4V4h4Zm2 6.5V4h4v6.5h-4Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">看板</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="bitable Gantt">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon" style="color: rgb(223, 88, 165);">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="BitableganttOutlined">
+                            <path d="M8.5 3.425v2.05h12v-2.05h-12Zm7.51 11.6c.824-.005 1.49-.755 1.49-1.505v-3.045c0-.728-.672-1.475-1.5-1.5H3c-.828.025-1.5.747-1.5 1.5v3.045c0 .754.672 1.505 1.5 1.505h13.01Zm-8.013 1.5h-.01a1.5 1.5 0 0 0-1.49 1.5v3.05a1.5 1.5 0 0 0 1.5 1.5h13a1.5 1.5 0 0 0 1.5-1.5v-3.05a1.5 1.5 0 0 0-1.5-1.5h-13ZM3.5 10.975h12v2.05h-12v-2.05Zm4.997 7.55h12v2.05h-12v-2.05ZM6.5 2.925a1.5 1.5 0 0 1 1.5-1.5h13a1.5 1.5 0 0 1 1.5 1.5v3.05a1.5 1.5 0 0 1-1.5 1.5H8a1.5 1.5 0 0 1-1.5-1.5v-3.05Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">甘特图</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="bitable Gallery">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon" style="color: rgb(141, 85, 237);">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="BitablegalleryOutlined">
+                            <path d="M2 4a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2 0v5h5V4H4ZM2 15a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5Zm2 0v5h5v-5H4ZM15 2a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-5Zm5 2v5h-5V4h5Zm-7 11a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2v-5Zm2 0v5h5v-5h-5Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">画册</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="bitable refer">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-bitable-brand">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="FileBitableColorful">
+                            <path d="M2.5 2.5a1 1 0 0 1 1-1h12.865a5.24 5.24 0 0 1 3.631 1.447A4.848 4.848 0 0 1 21.5 6.441V21.5a1 1 0 0 1-1 1H7.635a5.24 5.24 0 0 1-3.63-1.447A4.849 4.849 0 0 1 2.5 17.559V2.5Z" fill="#8046F3"></path>
+                            <path d="M12 8.26 15.74 12 12 15.735 8.26 12 12 8.26ZM8.26 12 6.5 14.275 9.725 17.5 12 15.735l2.275 1.765 3.225-3.225L15.74 12l1.76-2.275L14.275 6.5 12 8.26 9.725 6.5 6.5 9.725 8.26 12Z" fill="#fff"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">关联已有多维表格</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 团队协作部分 -->
+        <div class="menu-title-item panel-menu-item" data-name="团队协作">团队协作</div>
+        <div class="panel-menu-item" data-name="slash mention user">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-w-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="MemberOutlined">
+                            <path d="M15 6.5a3 3 0 1 0-6 0 3 3 0 0 0 6 0Zm2 0a5 5 0 1 1-10 0 5 5 0 0 1 10 0ZM4 19v2h16v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4Zm-2 0a6 6 0 0 1 6-6h8a6 6 0 0 1 6 6v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-2Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">人员</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-menu-item" data-name="task-list">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon colorful-indigo">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="TasklistOutlined">
+                            <path d="M3.8 4a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3v6.065a1 1 0 1 1-2 0V4a1 1 0 0 0-1-1h-11a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h2.488a1 1 0 1 1 0 2H6.8a3 3 0 0 1-3-3V4Z" fill="currentColor"></path>
+                            <path d="M23.08 12.78a1 1 0 0 1 0 1.414l-4.997 4.998-.047.047c-.627.627-1.167 1.167-1.658 1.541-.525.401-1.11.705-1.831.705-.72 0-1.306-.304-1.832-.705-.49-.374-1.03-.914-1.657-1.541l-.047-.047-.91-.91a1 1 0 1 1 1.415-1.414l.91.91c.686.687 1.132 1.129 1.503 1.412.348.265.51.295.618.295.108 0 .27-.03.618-.295.371-.283.817-.725 1.503-1.412l4.998-4.998a1 1 0 0 1 1.414 0ZM9.17 5.887a1 1 0 0 1 1-1h4.26a1 1 0 1 1 0 2h-4.26a1 1 0 0 1-1-1Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">任务清单</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 进阶部分 -->
+        <div class="menu-title-item panel-menu-item" data-name="进阶">进阶</div>
+        <div class="panel-menu-item" data-name="bookmark block">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-t-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="WebCardOutlined">
+                            <path d="M20 2a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16Zm-2 2v7.277a1 1 0 0 1-1.496.868L14.5 11l-2.004 1.145A1 1 0 0 1 11 11.277V4H4v16h16V4h-2Zm-2 0h-3v5.554l1.5-.857 1.5.857V4Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">网页卡片</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用连接部分 -->
+        <div class="menu-title-item panel-menu-item" data-name="应用连接">应用连接</div>
+        <div class="panel-submenu-item no-click-action panel-menu-item" data-name="third content blocks">
+            <div class="menu-item-content">
+                <div class="menu-icon show-icon-color">
+                    <span class="universe-icon menu_ud_icon color-i-500">
+                        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="BrowserMacOutlined">
+                            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 2C5.925 23 1 18.075 1 12S5.925 1 12 1s11 4.925 11 11-4.925 11-11 11Zm2.325-9.726a2 2 0 0 1-1.056 1.056l-5.113 2.178c-.41.175-.828-.26-.654-.66l2.213-5.082a2 2 0 0 1 1.033-1.034l5.098-2.228c.41-.179.831.253.66.655l-2.181 5.115Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="menu-item-main-box-wrapper">
+                    <div class="menu-item-main-box">
+                        <div class="menu-text">内嵌网页</div>
+                        <div class="item-arrow">
+                            <span class="universe-icon">
+                                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="RightSmallCcmOutlined">
+                                    <path d="M7.293 4.293a1 1 0 0 0 0 1.414L13.586 12l-6.293 6.293a1 1 0 1 0 1.414 1.414l7-7a1 1 0 0 0 0-1.414l-7-7a1 1 0 0 0-1.414 0Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 内嵌网页子菜单 -->
+            <div class="submenu-container" id="embed-submenu">
+                <div class="submenu-item" data-embed="figma">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <path fill="#F24E1E" d="M5.333 16A2.667 2.667 0 1 0 8 13.333V16H5.333Z"/>
+                            <path fill="#FF7262" d="M2.667 8a2.667 2.667 0 0 1 2.666-2.667H8v5.334H5.333A2.667 2.667 0 0 1 2.667 8Z"/>
+                            <path fill="#A259FF" d="M2.667 2.667A2.667 2.667 0 0 1 5.333 0H8v5.333H5.333A2.667 2.667 0 0 1 2.667 2.667Z"/>
+                            <path fill="#1ABCFE" d="M8 0h2.667a2.667 2.667 0 0 1 0 5.333H8V0Z"/>
+                            <path fill="#0ACF83" d="M13.333 8A2.667 2.667 0 1 1 8 8a2.667 2.667 0 0 1 5.333 0Z"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">Figma</div>
+                </div>
+                <div class="submenu-item" data-embed="youtube">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <path fill="#FF0000" d="M15.667 4.5s-.156-1.103-.635-1.588C14.42 2.275 13.727 2.272 13.415 2.235 11.167 2.073 8.002 2.073 8.002 2.073h-.007s-3.165 0-5.413.162c-.312.037-1.005.04-1.617.677-.479.485-.634 1.588-.634 1.588S.167 5.807.167 7.113v1.224c0 1.306.164 2.613.164 2.613s.16 1.103.634 1.588c.612.637 1.416.616 1.774.683 1.287.124 5.261.162 5.261.162s3.168-.005 5.417-.167c.312-.037 1.005-.04 1.617-.677.479-.485.635-1.588.635-1.588s.164-1.307.164-2.613V7.113c0-1.306-.166-2.613-.166-2.613ZM6.351 10.076V5.58l4.322 2.254-4.322 2.242Z"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">YouTube</div>
+                </div>
+                <div class="submenu-item" data-embed="codepen">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <path fill="#000" d="M15.988 5.11 8.472.125a.975.975 0 0 0-.944 0L.012 5.11a.477.477 0 0 0-.012.815l7.516 5.023a.975.975 0 0 0 .968 0l7.516-5.023a.477.477 0 0 0-.012-.815ZM8 6.5 5.567 8 8 9.5 10.433 8 8 6.5Z"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">CodePen</div>
+                </div>
+                <div class="submenu-divider"></div>
+                <div class="submenu-item" data-embed="custom">
+                    <div class="submenu-icon">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                            <path stroke="currentColor" stroke-width="1.5" d="M2 3.5h12M2 8h12M2 12.5h12"/>
+                        </svg>
+                    </div>
+                    <div class="submenu-text">自定义链接</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加基本的交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有菜单项添加点击事件
+            const menuItems = document.querySelectorAll('.panel-menu-item, .flatten-item');
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const name = this.getAttribute('data-name');
+                    console.log('点击了菜单项:', name);
+                });
+
+                // 添加hover效果增强
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(31, 35, 41, 0.05)';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+            });
+
+            // 为扁平化图标添加tooltips
+            const flattenItems = document.querySelectorAll('.flatten-item');
+            flattenItems.forEach(item => {
+                const tooltipText = item.getAttribute('data-tooltip');
+                if (tooltipText) {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip';
+                    tooltip.textContent = tooltipText;
+                    item.style.position = 'relative';
+                    item.appendChild(tooltip);
+
+                    item.addEventListener('mouseenter', function() {
+                        tooltip.style.opacity = '1';
+                    });
+
+                    item.addEventListener('mouseleave', function() {
+                        tooltip.style.opacity = '0';
+                    });
+                }
+            });
+
+            // 子菜单交互功能
+            const submenuItems = document.querySelectorAll('.panel-submenu-item');
+            let currentSubmenu = null;
+            let hideTimeout = null;
+
+            // 初始化表格网格
+            const tableGrid = document.getElementById('table-grid');
+            const tableInfo = document.getElementById('table-info');
+            if (tableGrid) {
+                for (let i = 0; i < 64; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'table-grid-cell';
+                    cell.dataset.row = Math.floor(i / 8) + 1;
+                    cell.dataset.col = (i % 8) + 1;
+                    tableGrid.appendChild(cell);
+                }
+
+                // 表格网格悬停效果
+                const gridCells = tableGrid.querySelectorAll('.table-grid-cell');
+                gridCells.forEach(cell => {
+                    cell.addEventListener('mouseenter', function() {
+                        const row = parseInt(this.dataset.row);
+                        const col = parseInt(this.dataset.col);
+
+                        gridCells.forEach(c => {
+                            const r = parseInt(c.dataset.row);
+                            const cl = parseInt(c.dataset.col);
+                            if (r <= row && cl <= col) {
+                                c.classList.add('highlighted');
+                            } else {
+                                c.classList.remove('highlighted');
+                            }
+                        });
+
+                        tableInfo.textContent = `${row} × ${col} 表格`;
+                    });
+
+                    cell.addEventListener('click', function() {
+                        const row = parseInt(this.dataset.row);
+                        const col = parseInt(this.dataset.col);
+                        console.log(`创建 ${row} × ${col} 表格`);
+                        hideSubmenu();
+                    });
+                });
+
+                tableGrid.addEventListener('mouseleave', function() {
+                    gridCells.forEach(c => c.classList.remove('highlighted'));
+                    tableInfo.textContent = '插入表格';
+                });
+            }
+
+            // 显示子菜单函数
+            function showSubmenu(parentItem, submenuId) {
+                hideSubmenu();
+
+                const submenu = document.getElementById(submenuId);
+                if (submenu) {
+                    clearTimeout(hideTimeout);
+                    currentSubmenu = submenu;
+                    submenu.classList.add('visible');
+
+                    // 计算位置，避免超出视窗
+                    const rect = parentItem.getBoundingClientRect();
+                    const submenuRect = submenu.getBoundingClientRect();
+
+                    if (rect.right + submenuRect.width > window.innerWidth) {
+                        submenu.style.left = 'auto';
+                        submenu.style.right = '100%';
+                        submenu.style.marginLeft = '0';
+                        submenu.style.marginRight = '4px';
+                    }
+                }
+            }
+
+            // 隐藏子菜单函数
+            function hideSubmenu() {
+                if (currentSubmenu) {
+                    currentSubmenu.classList.remove('visible');
+                    currentSubmenu = null;
+                }
+            }
+
+            // 为带子菜单的项添加悬停事件
+            submenuItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                let submenuId = null;
+
+                if (name === 'table') submenuId = 'table-submenu';
+                else if (name === 'slash grid') submenuId = 'grid-submenu';
+                else if (name === 'third content blocks') submenuId = 'embed-submenu';
+
+                if (submenuId) {
+                    item.addEventListener('mouseenter', function() {
+                        showSubmenu(this, submenuId);
+                    });
+
+                    item.addEventListener('mouseleave', function() {
+                        hideTimeout = setTimeout(() => {
+                            hideSubmenu();
+                        }, 300);
+                    });
+
+                    // 子菜单也要处理鼠标事件
+                    const submenu = document.getElementById(submenuId);
+                    if (submenu) {
+                        submenu.addEventListener('mouseenter', function() {
+                            clearTimeout(hideTimeout);
+                        });
+
+                        submenu.addEventListener('mouseleave', function() {
+                            hideTimeout = setTimeout(() => {
+                                hideSubmenu();
+                            }, 300);
+                        });
+
+                        // 子菜单项点击事件
+                        const items = submenu.querySelectorAll('.submenu-item');
+                        items.forEach(subItem => {
+                            subItem.addEventListener('click', function() {
+                                const data = this.dataset;
+                                console.log('选择了子菜单项:', data);
+                                hideSubmenu();
+                            });
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
