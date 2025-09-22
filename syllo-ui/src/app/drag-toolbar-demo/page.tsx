@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react';
-import { DragToolbar } from '@/components/drag-toolbar';
+import { DragHandle } from '@/components/drag-toolbar';
+import { SlashMenuPopover } from '@/components/menu/src';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function DragToolbarDemo() {
@@ -12,10 +13,11 @@ export default function DragToolbarDemo() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black relative">
       <ThemeToggle />
-      <DragToolbar
-        className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[79]">
+        <SlashMenuPopover onMenuItemClick={handleMenuItemClick} trigger="hover">
+          <DragHandle />
+        </SlashMenuPopover>
+      </div>
     </div>
   );
 }

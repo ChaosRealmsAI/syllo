@@ -1,13 +1,22 @@
 'use client'
 
 import React from 'react';
-import { DragToolbar } from '@/components/drag-toolbar';
+import { DragHandle } from '@/components/drag-toolbar';
+import { SlashMenuPopover } from '@/components/menu/src';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function TestPositioning() {
   const handleMenuItemClick = (item: any) => {
     console.log('Menu item clicked:', item);
   };
+
+  const PositionedDragToolbar = ({ className }: { className: string }) => (
+    <div className={`fixed z-[79] ${className}`}>
+      <SlashMenuPopover onMenuItemClick={handleMenuItemClick} trigger="hover">
+        <DragHandle />
+      </SlashMenuPopover>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black relative">
@@ -24,52 +33,28 @@ export default function TestPositioning() {
       </div>
 
       {/* Top left corner */}
-      <DragToolbar
-        className="left-4 top-4"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="left-4 top-4" />
 
       {/* Top right corner */}
-      <DragToolbar
-        className="right-4 top-4"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="right-4 top-4" />
 
       {/* Bottom left corner */}
-      <DragToolbar
-        className="left-4 bottom-4"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="left-4 bottom-4" />
 
       {/* Bottom right corner */}
-      <DragToolbar
-        className="right-4 bottom-4"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="right-4 bottom-4" />
 
       {/* Middle left edge */}
-      <DragToolbar
-        className="left-4 top-1/2 -translate-y-1/2"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="left-4 top-1/2 -translate-y-1/2" />
 
       {/* Middle right edge */}
-      <DragToolbar
-        className="right-4 top-1/2 -translate-y-1/2"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="right-4 top-1/2 -translate-y-1/2" />
 
       {/* Top center */}
-      <DragToolbar
-        className="left-1/2 top-4 -translate-x-1/2"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="left-1/2 top-4 -translate-x-1/2" />
 
       {/* Bottom center */}
-      <DragToolbar
-        className="left-1/2 bottom-4 -translate-x-1/2"
-        onMenuItemClick={handleMenuItemClick}
-      />
+      <PositionedDragToolbar className="left-1/2 bottom-4 -translate-x-1/2" />
     </div>
   );
 }

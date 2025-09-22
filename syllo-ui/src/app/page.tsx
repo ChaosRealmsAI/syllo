@@ -37,16 +37,29 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/drag-test"
+            href="/drag-editor"
             className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
           >
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              拖拽测试页面
+              拖拽编辑器
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              测试拖拽功能的示例页面，展示基础的拖拽交互实现
+              可拖拽的编辑器演示，支持内容块的拖拽排序和重新排列
             </p>
           </Link>
+
+          <Link
+            href="/modern-blocks"
+            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
+          >
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              现代化编辑器组件
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              基于 shadcn/ui 的完整 Markdown 语法、任务管理、文档引用和彩色高亮块
+            </p>
+          </Link>
+
 
           <Link
             href="/test-positioning"
@@ -57,6 +70,18 @@ export default function Home() {
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
               测试菜单在不同屏幕位置的智能定位算法
+            </p>
+          </Link>
+
+          <Link
+            href="/supabase-toc"
+            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
+          >
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              Supabase 风格目录
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              仿 Supabase 文档的侧边栏目录组件，支持滚动监听、自动高亮和折叠展开
             </p>
           </Link>
         </div>

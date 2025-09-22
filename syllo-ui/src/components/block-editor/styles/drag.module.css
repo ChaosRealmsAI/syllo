@@ -1,0 +1,167 @@
+/* 拖拽相关样式 */
+
+.draggableBlock {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.draggableBlock.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.blockContent {
+  position: relative;
+}
+
+.blockInner {
+  position: relative;
+  width: 100%;
+}
+
+/* 拖拽手柄包装器 */
+.dragHandleWrapper {
+  position: absolute;
+  left: -45px;
+  top: 2px;
+  z-index: 10;
+  cursor: grab;
+}
+
+.dragHandleWrapper:active {
+  cursor: grabbing;
+}
+
+/* 放置指示器 */
+.dropIndicator {
+  position: absolute;
+  background: rgb(51, 112, 255);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.dropIndicatorTop,
+.dropIndicatorBottom {
+  height: 2px;
+  width: 100%;
+  left: 0;
+}
+
+.dropIndicatorTop {
+  top: -1px;
+}
+
+.dropIndicatorBottom {
+  bottom: -1px;
+}
+
+.dropIndicatorLeft,
+.dropIndicatorRight {
+  width: 2px;
+  height: 100%;
+  top: 0;
+}
+
+.dropIndicatorLeft {
+  left: -1px;
+}
+
+.dropIndicatorRight {
+  right: -1px;
+}
+
+/* 拖拽中的样式 */
+.dragOverlay {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  max-width: 600px;
+  cursor: grabbing;
+  opacity: 0.9;
+}
+
+/* 拖拽容器 */
+.dragContainer {
+  position: relative;
+  min-height: 100px;
+}
+
+/* 空状态 */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+
+/* 横向布局容器（第二阶段使用） */
+.horizontalContainer {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.horizontalBlock {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* 列调整器（第二阶段使用） */
+.columnResizer {
+  position: absolute;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.columnResizer:hover,
+.columnResizer.active {
+  background: rgb(51, 112, 255);
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.blockEnter {
+  animation: fadeIn 0.2s ease;
+}
+
+/* 自动滚动区域 */
+.scrollZone {
+  position: fixed;
+  height: 50px;
+  width: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.scrollZoneTop {
+  composes: scrollZone;
+  top: 0;
+  background: linear-gradient(to bottom, hsla(var(--background) / 0.8), transparent);
+}
+
+.scrollZoneBottom {
+  composes: scrollZone;
+  bottom: 0;
+  background: linear-gradient(to top, hsla(var(--background) / 0.8), transparent);
+}
