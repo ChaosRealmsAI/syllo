@@ -13,7 +13,7 @@ export default function Home() {
 
         <div className="grid gap-6 md:grid-cols-2">
           <Link
-            href="/editor"
+            href="/tiptap-editor"
             className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
           >
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
@@ -24,102 +24,7 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link
-            href="/drag-toolbar-demo"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              拖拽工具栏组件
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              飞书编辑器风格的拖拽工具栏，支持悬浮触发菜单、多级子菜单、表格选择器等功能
-            </p>
-          </Link>
 
-          <Link
-            href="/drag-editor"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              拖拽编辑器
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              可拖拽的编辑器演示，支持内容块的拖拽排序和重新排列
-            </p>
-          </Link>
-
-          <Link
-            href="/document-outline-demo"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              文档大纲演示
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              展示文档大纲组件的功能和交互效果
-            </p>
-          </Link>
-
-
-          <Link
-            href="/test-positioning"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              智能定位测试
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              测试菜单在不同屏幕位置的智能定位算法
-            </p>
-          </Link>
-
-          <Link
-            href="/feishu-nav-demo"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              飞书导航栏组件
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              基于 shadcn/ui 的飞书风格顶部导航栏组件，包含面包屑、分享、通知等功能
-            </p>
-          </Link>
-
-          <Link
-            href="/kanban-demo"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              多列拖拽看板
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              支持多列展示和任务卡片拖拽的看板组件，可在列间移动任务、重新排序
-            </p>
-          </Link>
-
-          <Link
-            href="/column-layout-demo"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              多列可调整布局
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              支持拖拽调整列宽、动态添加新列的多列布局组件，类似飞书多列编辑器
-            </p>
-          </Link>
-
-          <Link
-            href="/enhanced-drag-demo"
-            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              增强版块拖拽系统
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              支持纵向、横向和跨容器拖拽的增强版编辑器块系统
-            </p>
-          </Link>
         </div>
       </div>
     </div>
