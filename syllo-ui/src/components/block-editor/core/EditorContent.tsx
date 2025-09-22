@@ -60,6 +60,10 @@ export const EditorContent: React.FC<EditorContentProps> = ({
         return <Heading level={2}>{block.content}</Heading>;
       case "heading3":
         return <Heading level={3}>{block.content}</Heading>;
+      case "heading4":
+        return <Heading level={4}>{block.content}</Heading>;
+      case "heading5":
+        return <Heading level={5}>{block.content}</Heading>;
       case "paragraph":
         return <Paragraph>{block.content}</Paragraph>;
       case "unorderedList":

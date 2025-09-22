@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import { DragHandle } from '../../drag-toolbar';
-import { SlashMenuPopover } from '../../menu/src';
+import { FramedDragHandle } from '@/components/drag-toolbar';
+import { SlashMenuPopover } from '@/components/menu';
 
 interface BlockDragToolbarProps {
   onMenuItemClick?: (item: any) => void;
@@ -21,11 +21,13 @@ export const BlockDragToolbar: React.FC<BlockDragToolbarProps> = ({
 }) => {
   return (
     <SlashMenuPopover onMenuItemClick={onMenuItemClick} trigger="hover">
-      <DragHandle
+      <FramedDragHandle
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         dragHandleRef={dragHandleRef}
         dragHandleProps={dragHandleProps}
+        darkMode={true}
+        showBorder={true}
       />
     </SlashMenuPopover>
   );

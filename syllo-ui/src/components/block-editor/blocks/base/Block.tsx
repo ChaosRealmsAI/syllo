@@ -16,6 +16,7 @@ export const Block: React.FC<BlockProps> = ({
 }) => {
   return (
     <div
+      id={id}
       className={`${styles.contentBlock} ${className || ""}`}
       data-block-id={id}
     >

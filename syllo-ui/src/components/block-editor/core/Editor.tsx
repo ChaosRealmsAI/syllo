@@ -395,20 +395,36 @@ const editor = new Editor({
   },
 ];
 
-export const Editor: React.FC = () => {
-  const [blocks, setBlocks] = useState<EditorBlock[]>(initialBlocks);
+interface EditorProps {
+  blocks?: EditorBlock[];
+  onBlocksChange?: (blocks: EditorBlock[]) => void;
+}
+
+export const Editor: React.FC<EditorProps> = ({
+  blocks: externalBlocks,
+  onBlocksChange
+}) => {
+  const [internalBlocks, setInternalBlocks] = useState<EditorBlock[]>(initialBlocks);
   const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
 
+  // 使用外部传入的blocks或内部状态
+  const blocks = externalBlocks || internalBlocks;
+  const setBlocks = onBlocksChange || setInternalBlocks;
+
   return (
-    <div className={styles.editorWrapper}>
-      <Toolbar />
-      <DocumentTitle defaultTitle="飞书编辑器纯UI版" />
-      <DocumentMeta author="用户" lastModified="今天修改" />
-      <EditorContent
-        blocks={blocks}
-        activeBlockId={activeBlockId}
-        setActiveBlockId={setActiveBlockId}
-      />
+    <div className={styles.editorContainer}>
+      <div className={styles.editorHeader}>
+        <Toolbar />
+        <DocumentTitle defaultTitle="飞书编辑器纯UI版" />
+        <DocumentMeta author="用户" lastModified="今天修改" />
+      </div>
+      <div className={styles.editorWrapper}>
+        <EditorContent
+          blocks={blocks}
+          activeBlockId={activeBlockId}
+          setActiveBlockId={setActiveBlockId}
+        />
+      </div>
     </div>
   );
 };

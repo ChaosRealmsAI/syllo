@@ -62,13 +62,22 @@
 }
 
 /* ========== Editor Container ========== */
-.editorWrapper {
-  max-width: none;
+.editorContainer {
   width: 100%;
-  margin: 0;
-  padding: 40px 60px 40px 100px;
   font-family: var(--editor-font-family);
   color: var(--editor-text-primary);
+  padding-top: 4px; /* Distance from top */
+}
+
+.editorHeader {
+  padding-bottom: 12px;
+  min-height: 80px; /* Reduced height */
+}
+
+.editorWrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0 0 40px 0;
 }
 
 /* ========== Toolbar Styles ========== */
@@ -117,7 +126,7 @@
   font-weight: 500;
   line-height: 1.4;
   color: var(--editor-text-primary);
-  margin-bottom: var(--editor-spacing-lg);
+  margin-bottom: var(--editor-spacing-sm);
   padding: var(--editor-spacing-xs) 0;
   border: none;
   outline: none;
@@ -147,8 +156,8 @@
   display: flex;
   align-items: center;
   gap: var(--editor-spacing-lg);
-  padding: var(--editor-spacing-md) 0;
-  margin-bottom: var(--editor-spacing-2xl);
+  padding: var(--editor-spacing-sm) 0;
+  margin-bottom: var(--editor-spacing-xs);
   border-bottom: 1px solid var(--editor-border-light);
 }
 
@@ -206,6 +215,7 @@
   margin-bottom: var(--editor-spacing-lg);
   position: relative;
   transition: background-color var(--editor-transition-fast);
+  scroll-margin-top: 84px; /* 导航栏高度64px + 20px间距 */
 }
 
 /* Block container for wrapper */
@@ -254,6 +264,7 @@
 .heading {
   position: relative;
   padding-left: 0;
+  scroll-margin-top: 84px; /* 导航栏高度64px + 20px间距 */
 }
 
 .headingH1 {
@@ -275,6 +286,20 @@
   font-weight: 500;
   line-height: 1.4;
   margin: var(--editor-spacing-md) 0 var(--editor-spacing-sm);
+}
+
+.headingH4 {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: var(--editor-spacing-sm) 0 var(--editor-spacing-xs);
+}
+
+.headingH5 {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: var(--editor-spacing-sm) 0 var(--editor-spacing-xs);
 }
 
 /* ========== Collapse Button ========== */

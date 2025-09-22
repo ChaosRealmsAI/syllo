@@ -49,14 +49,14 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/modern-blocks"
+            href="/document-outline-demo"
             className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
           >
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              现代化编辑器组件
+              文档大纲演示
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              基于 shadcn/ui 的完整 Markdown 语法、任务管理、文档引用和彩色高亮块
+              展示文档大纲组件的功能和交互效果
             </p>
           </Link>
 
@@ -74,14 +74,14 @@ export default function Home() {
           </Link>
 
           <Link
-            href="/supabase-toc"
+            href="/feishu-nav-demo"
             className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
           >
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-              Supabase 风格目录
+              飞书导航栏组件
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              仿 Supabase 文档的侧边栏目录组件，支持滚动监听、自动高亮和折叠展开
+              基于 shadcn/ui 的飞书风格顶部导航栏组件，包含面包屑、分享、通知等功能
             </p>
           </Link>
         </div>

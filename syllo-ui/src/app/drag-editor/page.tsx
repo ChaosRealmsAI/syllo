@@ -24,7 +24,7 @@ import { DragProvider, useDragContext } from "@/components/block-editor/drag/Dra
 import { DraggableBlock } from "@/components/block-editor/drag/DraggableBlock";
 import { Block } from "@/components/block-editor/drag/types";
 import { generateId } from "@/components/block-editor/drag/utils/dragHelpers";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { FeishuNav } from "@/components/feishu-nav";
 
 // 导入块组件
 import { Heading } from "@/components/block-editor/blocks/text/Heading";
@@ -224,30 +224,47 @@ const DragEditorContent: React.FC = () => {
 // 主页面组件
 export default function DragEditorPage() {
   return (
-    <DragProvider initialBlocks={initialBlocks}>
-      <ThemeToggle />
-      <div className={styles.editorWrapper}>
-        {/* 顶部工具栏 */}
-        <div className={styles.editorToolbar}>
-          <h1 className={styles.docTitle}>拖拽编辑器 - 第一阶段</h1>
-        </div>
+    <div className="min-h-screen bg-background pt-16">
+      {/* Feishu Navigation Bar */}
+      <FeishuNav
+        breadcrumbs={[
+          { id: '1', label: '演示' },
+          { id: '2', label: '拖拽编辑器' }
+        ]}
+        title="拖拽编辑器"
+        isPinned={false}
+        lastModified="最近修改: 刚刚"
+        onShareClick={() => alert('分享功能')}
+        onEditModeChange={() => {}}
+        editMode="edit"
+        notificationCount={0}
+        userName="用户"
+      />
 
-        {/* 编辑器内容 */}
-        <div className={styles.editorContent}>
-          <DragEditorContent />
-        </div>
+      <DragProvider initialBlocks={initialBlocks}>
+        <div className={styles.editorWrapper}>
+          {/* 顶部工具栏 */}
+          <div className={styles.editorToolbar}>
+            <h1 className={styles.docTitle}>拖拽编辑器 - 第一阶段</h1>
+          </div>
 
-        {/* 调试面板 */}
-        <div className="fixed bottom-5 right-5 bg-card border border-border rounded-lg p-4 max-w-xs shadow-lg">
-          <h3 className="text-sm font-medium text-card-foreground mb-2">拖拽提示</h3>
-          <ul className="text-xs text-muted-foreground pl-5 space-y-1">
-            <li>悬停显示拖拽手柄</li>
-            <li>拖拽手柄重新排序</li>
-            <li>蓝线指示放置位置</li>
-            <li>支持键盘操作</li>
-          </ul>
+          {/* 编辑器内容 */}
+          <div className={styles.editorContent}>
+            <DragEditorContent />
+          </div>
+
+          {/* 调试面板 */}
+          <div className="fixed bottom-5 right-5 bg-card border border-border rounded-lg p-4 max-w-xs shadow-lg">
+            <h3 className="text-sm font-medium text-card-foreground mb-2">拖拽提示</h3>
+            <ul className="text-xs text-muted-foreground pl-5 space-y-1">
+              <li>悬停显示拖拽手柄</li>
+              <li>拖拽手柄重新排序</li>
+              <li>蓝线指示放置位置</li>
+              <li>支持键盘操作</li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </DragProvider>
+      </DragProvider>
+    </div>
   );
 }

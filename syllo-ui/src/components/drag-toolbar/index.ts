@@ -1,3 +1,1 @@
-export { default as DragHandle } from './DragHandle';
-
-export * from './icons';
+export { DragHandle, FramedDragHandle } from './src';

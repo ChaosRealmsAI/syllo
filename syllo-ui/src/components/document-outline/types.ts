@@ -5,7 +5,9 @@ export interface TocItem {
   children?: TocItem[];
 }
 
-export interface SupabaseTocProps {
+export interface DocumentOutlineProps {
   className?: string;
   tocData?: TocItem[];
+  isCollapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }

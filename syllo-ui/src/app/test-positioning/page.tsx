@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react';
-import { DragHandle } from '@/components/drag-toolbar';
+import { FramedDragHandle } from '@/components/drag-toolbar';
 import { SlashMenuPopover } from '@/components/menu/src';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { FeishuNav } from '@/components/feishu-nav';
 
 export default function TestPositioning() {
   const handleMenuItemClick = (item: any) => {
@@ -13,14 +13,27 @@ export default function TestPositioning() {
   const PositionedDragToolbar = ({ className }: { className: string }) => (
     <div className={`fixed z-[79] ${className}`}>
       <SlashMenuPopover onMenuItemClick={handleMenuItemClick} trigger="hover">
-        <DragHandle />
+        <FramedDragHandle darkMode={true} showBorder={true} />
       </SlashMenuPopover>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black relative">
-      <ThemeToggle />
+    <div className="min-h-screen bg-gray-50 dark:bg-black pt-16">
+      <FeishuNav
+        breadcrumbs={[
+          { id: '1', label: '演示' },
+          { id: '2', label: '智能定位测试' }
+        ]}
+        title="智能定位测试"
+        isPinned={false}
+        lastModified="最近修改: 刚刚"
+        onShareClick={() => alert('分享功能')}
+        onEditModeChange={() => {}}
+        editMode="view"
+        notificationCount={0}
+        userName="用户"
+      />
 
       {/* Center info */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
