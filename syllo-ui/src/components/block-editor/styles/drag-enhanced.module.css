@@ -1,0 +1,143 @@
+/* 增强版拖拽样式 */
+
+/* 横向块样式 */
+.horizontalBlock {
+  display: inline-flex;
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+/* 拖拽手柄位置调整 */
+.dragHandleHorizontal {
+  position: absolute;
+  top: 8px;
+  left: -20px;
+  z-index: 10;
+}
+
+/* 放置指示器 - 左右 */
+.dropIndicatorLeft {
+  position: absolute;
+  left: -2px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgb(76, 136, 255);
+  border-radius: 2px;
+  animation: dropIndicatorPulse 0.5s ease-in-out infinite;
+}
+
+.dropIndicatorRight {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgb(76, 136, 255);
+  border-radius: 2px;
+  animation: dropIndicatorPulse 0.5s ease-in-out infinite;
+}
+
+/* 容器样式 */
+.columnContainer {
+  min-height: 100px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.containerTitle {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  margin-bottom: 8px;
+}
+
+.containerTitle h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, #6b7280);
+  margin: 0;
+}
+
+.containerContent {
+  padding: 8px;
+  min-height: 60px;
+}
+
+/* 横向容器 */
+.horizontalContainer {
+  border: 2px dashed transparent;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.horizontalContainer.containerOver {
+  border-color: rgb(76, 136, 255);
+  background: rgba(76, 136, 255, 0.05);
+}
+
+/* 纵向容器 */
+.verticalContainer {
+  border: 2px dashed transparent;
+}
+
+.verticalContainer.containerOver {
+  border-color: rgb(76, 136, 255);
+  background: rgba(76, 136, 255, 0.05);
+}
+
+/* 空容器状态 */
+.emptyContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  border: 2px dashed #d1d5db;
+  border-radius: 6px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* 动画 */
+@keyframes dropIndicatorPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .horizontalBlock {
+    min-width: 150px;
+  }
+
+  .horizontalContainer .containerContent {
+    flex-wrap: wrap;
+  }
+}
+
+/* 拖拽中的状态 */
+.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .columnContainer {
+    --border-color: #374151;
+    --text-secondary: #9ca3af;
+  }
+
+  .horizontalContainer {
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .emptyContainer {
+    border-color: #4b5563;
+    color: #6b7280;
+  }
+}
