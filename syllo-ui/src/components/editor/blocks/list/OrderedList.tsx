@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import styles from "../styles/editor.module.css";
-import { ChevronDownIcon } from "../icons";
+import styles from "../../styles/editor.module.css";
+import { ChevronDownIcon } from "../../icons";
 
 interface ListItem {
   id: string;

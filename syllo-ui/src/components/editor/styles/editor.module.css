@@ -45,7 +45,7 @@
 .editorWrapper {
   max-width: 900px;
   margin: 0 auto;
-  padding: 40px 60px;
+  padding: 40px 60px 40px 100px;
   font-family: var(--editor-font-family);
   color: var(--editor-text-primary);
 }
@@ -184,127 +184,37 @@
 .contentBlock {
   margin-bottom: var(--editor-spacing-lg);
   position: relative;
+  transition: background-color var(--editor-transition-fast);
+}
+
+/* Block container for wrapper */
+.blockContainer {
+  position: relative;
+}
+
+/* Block hover highlight */
+.blockHighlighted {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
 }
 
 /* ========== Drag Handle Styles ========== */
-.dragHandleContainer {
+
+.dragHandleWrapper {
   position: absolute;
-  left: -52px;
+  left: -45px;
   top: 0;
   width: 42px;
   height: 26px;
-  opacity: 0;
-  transition: opacity 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
   z-index: 10;
 }
 
-.contentBlock:hover .dragHandleContainer {
-  opacity: 1;
-}
 
-.dragHandleTrigger {
-  display: block;
-  width: 42px;
-  height: 26px;
-  background: transparent;
-  cursor: grab;
-}
-
-.dragHandleWrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 42px;
-  height: 26px;
-  padding: 1px;
-  border: 1px solid rgb(222, 224, 227);
-  border-radius: 6px;
-  background: rgb(255, 255, 255);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-  transition: all 0.2s ease;
-  cursor: grab;
-}
-
-.dragHandleWrapper:hover {
-  border-color: rgb(51, 112, 255);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.dragHandleTrigger:active .dragHandleWrapper {
-  cursor: grabbing;
-  transform: scale(0.95);
-}
-
-.dragHandleIconContainer {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-  background: transparent;
-}
-
-.dragIcon {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 22px;
-  height: 22px;
-}
-
-.dragIcon svg {
-  display: block;
-  width: 14px;
-  height: 14px;
-  color: rgb(31, 35, 41);
-}
-
-.dragHandleIcon {
-  display: block;
-  width: 14px;
-  height: 14px;
-}
-
-.dragHandleIcon svg {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  color: rgb(143, 149, 158);
-}
-
-/* Dragging states */
-.contentBlock.dragging {
-  opacity: 0.5;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 6px;
-}
-
-/* Drop indicator */
-.dropIndicator {
-  position: relative;
-  height: 2px;
-  background: rgb(51, 112, 255);
-  margin: 8px 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.dropIndicator.active {
-  opacity: 1;
-}
 
 /* ========== Heading Styles ========== */
 .heading {
   position: relative;
   padding-left: 0;
-  transition: padding-left var(--editor-transition-fast);
-}
-
-.heading:hover {
-  padding-left: 24px;
 }
 
 .headingH1 {
@@ -331,7 +241,7 @@
 /* ========== Collapse Button ========== */
 .collapseBtn {
   position: absolute;
-  left: 0;
+  left: -70px;
   top: 50%;
   transform: translateY(-50%);
   width: 16px;
@@ -377,11 +287,14 @@
 .list {
   margin: var(--editor-spacing-md) 0;
   padding-left: var(--editor-spacing-2xl);
+  list-style-type: disc;
+  list-style-position: outside;
 }
 
 .listItem {
   line-height: 1.75;
   margin-bottom: var(--editor-spacing-xs);
+  list-style: inherit;
 }
 
 /* ========== Code Block ========== */
@@ -643,7 +556,7 @@
 /* List collapse button */
 .listFold {
   position: absolute;
-  left: -20px;
+  left: -24px;
   top: 5px;
   width: 16px;
   height: 16px;

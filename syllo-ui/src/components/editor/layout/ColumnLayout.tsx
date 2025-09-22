@@ -32,20 +32,23 @@ export const ColumnLayout: React.FC<ColumnLayoutProps> = ({
     const containerWidth = containerRef.current.offsetWidth;
     const deltaPercent = (deltaX / containerWidth) * 100;
 
-    const newColumns = [...columns];
-    const leftColumn = newColumns[index];
-    const rightColumn = newColumns[index + 1];
+    setColumns(prevColumns => {
+      const newColumns = [...prevColumns];
+      const leftColumn = newColumns[index];
+      const rightColumn = newColumns[index + 1];
 
-    const newLeftWidth = leftColumn.width + deltaPercent;
-    const newRightWidth = rightColumn.width - deltaPercent;
+      const newLeftWidth = leftColumn.width + deltaPercent;
+      const newRightWidth = rightColumn.width - deltaPercent;
 
-    // Minimum width constraint
-    if (newLeftWidth > 10 && newRightWidth > 10) {
-      leftColumn.width = newLeftWidth;
-      rightColumn.width = newRightWidth;
-      setColumns(newColumns);
-      onColumnsChange?.(newColumns);
-    }
+      // Minimum width constraint
+      if (newLeftWidth > 10 && newRightWidth > 10) {
+        leftColumn.width = newLeftWidth;
+        rightColumn.width = newRightWidth;
+        onColumnsChange?.(newColumns);
+        return newColumns;
+      }
+      return prevColumns;
+    });
   };
 
   const handleAddColumn = (afterIndex: number) => {

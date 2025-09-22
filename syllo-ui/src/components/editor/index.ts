@@ -1,18 +1,29 @@
-export { Editor } from "./Editor";
-export { Toolbar } from "./Toolbar";
-export { DocumentTitle } from "./DocumentTitle";
-export { DocumentMeta } from "./DocumentMeta";
+// Core
+export { Editor } from "./core/Editor";
+export { EditorContent } from "./core/EditorContent";
 
-// Blocks
-export { Block } from "./blocks/Block";
-export { DragHandle } from "./blocks/DragHandle";
-export { Heading } from "./blocks/Heading";
-export { Paragraph } from "./blocks/Paragraph";
-export { OrderedList } from "./blocks/OrderedList";
-export { UnorderedList } from "./blocks/UnorderedList";
-export { CodeBlock } from "./blocks/CodeBlock";
-export { Blockquote } from "./blocks/Blockquote";
-export { Divider } from "./blocks/Divider";
+// Toolbar
+export { Toolbar } from "./toolbar/Toolbar";
+export { DocumentTitle } from "./toolbar/DocumentTitle";
+export { DocumentMeta } from "./toolbar/DocumentMeta";
+export { BlockDragToolbar } from "./toolbar/BlockDragToolbar";
+
+// Base Blocks
+export { Block } from "./blocks/base/Block";
+export { BlockWrapper } from "./blocks/base/BlockWrapper";
+
+// Text Blocks
+export { Heading } from "./blocks/text/Heading";
+export { Paragraph } from "./blocks/text/Paragraph";
+export { Blockquote } from "./blocks/text/Blockquote";
+
+// List Blocks
+export { OrderedList } from "./blocks/list/OrderedList";
+export { UnorderedList } from "./blocks/list/UnorderedList";
+
+// Misc Blocks
+export { CodeBlock } from "./blocks/misc/CodeBlock";
+export { Divider } from "./blocks/misc/Divider";
 
 // Layout
 export { ColumnLayout } from "./layout/ColumnLayout";

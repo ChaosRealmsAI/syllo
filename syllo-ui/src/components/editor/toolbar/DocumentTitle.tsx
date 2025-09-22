@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import styles from "./styles/editor.module.css";
+import styles from "../styles/editor.module.css";
 
 interface DocumentTitleProps {
   defaultTitle?: string;

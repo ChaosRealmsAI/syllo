@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import styles from "./styles/editor.module.css";
-import { AddIconIcon, AddCoverIcon } from "./icons";
+import styles from "../styles/editor.module.css";
+import { AddIconIcon, AddCoverIcon } from "../icons";
 
 export const Toolbar: React.FC = () => {
   return (

@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import styles from "./styles/editor.module.css";
-import { Avatar } from "./ui/Avatar";
-import { EditIcon } from "./icons";
+import styles from "../styles/editor.module.css";
+import { Avatar } from "../ui/Avatar";
+import { EditIcon } from "../icons";
 
 interface DocumentMetaProps {
   author?: string;

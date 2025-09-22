@@ -20,12 +20,14 @@ export const ColumnResizer: React.FC<ColumnResizerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const startXRef = useRef(0);
+  const currentXRef = useRef(0);
 
   useEffect(() => {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startXRef.current;
+      const deltaX = e.clientX - currentXRef.current;
+      currentXRef.current = e.clientX;
       onDrag(deltaX);
     };
 
@@ -47,6 +49,7 @@ export const ColumnResizer: React.FC<ColumnResizerProps> = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     startXRef.current = e.clientX;
+    currentXRef.current = e.clientX;
     setIsDragging(true);
     onDragStart();
     document.body.style.cursor = "col-resize";

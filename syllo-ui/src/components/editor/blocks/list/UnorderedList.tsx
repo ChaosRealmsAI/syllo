@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import styles from "../styles/editor.module.css";
+import styles from "../../styles/editor.module.css";
 
 interface UnorderedListProps {
   items: string[];

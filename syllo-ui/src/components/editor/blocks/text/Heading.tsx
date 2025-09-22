@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import styles from "../styles/editor.module.css";
-import { CollapseButton } from "../ui/CollapseButton";
+import styles from "../../styles/editor.module.css";
+import { CollapseButton } from "../../ui/CollapseButton";
 
 interface HeadingProps {
   level: 1 | 2 | 3;

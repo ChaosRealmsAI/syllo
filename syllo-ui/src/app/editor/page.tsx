@@ -1,6 +1,6 @@
 "use client";
 
-import { Editor } from "@/components/editor/Editor";
+import { Editor } from "@/components/editor/core/Editor";
 
 export default function EditorPage() {
   return (
