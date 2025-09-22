@@ -68,7 +68,7 @@ const initialContent = {
       content: [
         {
           type: "text",
-          text: "直接开始输入即可，使用标准的键盘快捷键："
+          text: "输入 \"/\" 打开命令菜单。使用标准的键盘快捷键："
         }
       ]
     },
