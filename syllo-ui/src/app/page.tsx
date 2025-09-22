@@ -24,6 +24,17 @@ export default function Home() {
             </p>
           </Link>
 
+          <Link
+            href="/notion-editor"
+            className="group p-6 bg-white dark:bg-neutral-900 rounded-lg shadow hover:shadow-lg transition-shadow"
+          >
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+              Notion 风格编辑器
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              简洁的 Notion 风格块编辑器，使用原生 TipTap 功能，支持富文本编辑
+            </p>
+          </Link>
 
         </div>
       </div>

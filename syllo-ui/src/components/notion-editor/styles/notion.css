@@ -1,0 +1,454 @@
+/* Notion风格编辑器样式 */
+
+/* 容器样式 */
+.notion-editor-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 96px 120px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', 'Apple Color Emoji', Arial, sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+/* 在有导航栏和侧边栏时的容器样式 */
+main .notion-editor-container {
+  padding: 20px 60px 120px;
+}
+
+/* 标题输入框 */
+.notion-header {
+  margin-bottom: 20px;
+}
+
+.notion-title-input {
+  width: 100%;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.25;
+  border: none;
+  outline: none;
+  color: rgb(55, 53, 47);
+  background: transparent;
+  padding: 3px 2px;
+}
+
+.notion-title-input::placeholder {
+  color: rgb(235, 236, 237);
+}
+
+/* 编辑器包装器 */
+.notion-editor-wrapper {
+  position: relative;
+  width: 100%;
+  padding-left: 60px; /* 给拖拽句柄留出空间 */
+}
+
+/* ProseMirror编辑器基础样式 */
+.notion-editor.ProseMirror {
+  min-height: 300px;
+  outline: none;
+  caret-color: rgb(55, 53, 47);
+  position: relative;
+  overflow: visible; /* 确保句柄不会被裁剪 */
+}
+
+.notion-editor.ProseMirror:focus {
+  outline: none;
+}
+
+/* 占位符 */
+.notion-editor .is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: rgba(55, 53, 47, 0.4);
+  pointer-events: none;
+  height: 0;
+  float: left;
+}
+
+/* 块级元素通用样式 */
+.notion-editor > * {
+  position: relative;
+  margin: 2px 0;
+  padding: 3px 2px;
+}
+
+/* 段落样式 */
+.notion-paragraph {
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgb(55, 53, 47);
+  margin: 2px 0;
+  padding: 3px 2px;
+}
+
+/* 标题样式 */
+.notion-heading {
+  font-weight: 600;
+  color: rgb(55, 53, 47);
+  margin-top: 1.5em;
+  margin-bottom: 1px;
+  padding: 3px 2px;
+}
+
+h1.notion-heading {
+  font-size: 30px;
+  margin-top: 2em;
+}
+
+h2.notion-heading {
+  font-size: 24px;
+  margin-top: 1.5em;
+}
+
+h3.notion-heading {
+  font-size: 20px;
+  margin-top: 1em;
+}
+
+/* 列表样式 */
+.notion-list {
+  padding-left: 28px;
+  color: rgb(55, 53, 47);
+}
+
+.notion-list-item {
+  padding: 1px 0;
+  margin: 0;
+}
+
+/* 无序列表 */
+ul.notion-list {
+  list-style: disc;
+}
+
+/* 有序列表 */
+ol.notion-list {
+  list-style: decimal;
+}
+
+/* 引用块 */
+.notion-blockquote {
+  border-left: 3px solid rgb(55, 53, 47);
+  padding-left: 14px;
+  margin: 4px 0;
+  color: rgb(120, 119, 116);
+  font-size: 16px;
+}
+
+/* 代码块 */
+.notion-code-block {
+  background: rgb(247, 246, 243);
+  border-radius: 3px;
+  padding: 20px;
+  margin: 4px 0;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 85%;
+  tab-size: 2;
+  overflow-x: auto;
+}
+
+.notion-code-block code {
+  font-size: 13.6px;
+  line-height: 20px;
+  color: rgb(55, 53, 47);
+}
+
+/* 分割线 */
+.notion-divider {
+  border: 0;
+  height: 1px;
+  background: rgba(55, 53, 47, 0.09);
+  margin: 12px 0;
+}
+
+/* 选中样式 */
+.notion-editor ::selection {
+  background-color: rgb(46, 170, 220, 0.3);
+}
+
+/* 悬停效果 */
+.notion-editor > *:hover {
+  background-color: rgba(55, 53, 47, 0.03);
+  border-radius: 3px;
+}
+
+/* 块级元素左侧句柄区域 */
+.notion-editor > * {
+  position: relative;
+}
+
+.notion-editor > *::before {
+  content: '';
+  position: absolute;
+  left: -42px;
+  top: 0;
+  bottom: 0;
+  width: 42px;
+  cursor: grab;
+}
+
+/* 拖拽句柄图标（将来实现） */
+.notion-drag-handle {
+  position: absolute;
+  left: -42px;
+  top: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out, background 150ms ease-in-out;
+  cursor: grab;
+  color: rgba(55, 53, 47, 0.45);
+}
+
+.notion-editor > *:hover .notion-drag-handle {
+  opacity: 1;
+}
+
+.notion-drag-handle:hover {
+  background-color: rgba(55, 53, 47, 0.08);
+}
+
+.notion-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* 加号按钮（将来实现） */
+.notion-plus-button {
+  position: absolute;
+  left: -20px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out, background 150ms ease-in-out;
+  cursor: pointer;
+  color: rgba(55, 53, 47, 0.45);
+}
+
+.notion-editor > *:hover .notion-plus-button {
+  opacity: 1;
+}
+
+.notion-plus-button:hover {
+  background-color: rgba(55, 53, 47, 0.08);
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .notion-editor-container {
+    padding: 20px 24px 80px;
+  }
+
+  .notion-title-input {
+    font-size: 32px;
+  }
+}
+
+/* 斜杠命令菜单样式 */
+.tippy-box {
+  background-color: white;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+.slash-command-menu {
+  background: white;
+  border-radius: 6px;
+  padding: 8px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica', sans-serif;
+}
+
+.slash-command-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 2px 0;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.slash-command-item:hover,
+.slash-command-item.is-selected {
+  background-color: rgba(55, 53, 47, 0.08);
+}
+
+.slash-command-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  background: rgba(55, 53, 47, 0.03);
+  border-radius: 4px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.slash-command-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.slash-command-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(55, 53, 47);
+  margin-bottom: 2px;
+}
+
+.slash-command-description {
+  font-size: 12px;
+  color: rgba(55, 53, 47, 0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slash-command-empty {
+  padding: 16px;
+  text-align: center;
+  color: rgba(55, 53, 47, 0.5);
+  font-size: 14px;
+}
+
+/* 表格样式 */
+.notion-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 12px 0;
+  overflow: hidden;
+}
+
+.notion-table td,
+.notion-table th {
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  padding: 8px 12px;
+  position: relative;
+  vertical-align: top;
+  min-width: 100px;
+}
+
+.notion-table th {
+  background-color: rgb(247, 246, 243);
+  font-weight: 600;
+  text-align: left;
+}
+
+.notion-table tr:first-child td {
+  border-top: 2px solid rgba(55, 53, 47, 0.16);
+}
+
+.notion-table .selectedCell {
+  background-color: rgba(46, 170, 220, 0.1);
+}
+
+/* ProseMirror 表格样式 */
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.ProseMirror td,
+.ProseMirror th {
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+  min-width: 1em;
+  border: 1px solid rgba(55, 53, 47, 0.09);
+  padding: 8px 12px;
+}
+
+.ProseMirror th {
+  background-color: rgb(247, 246, 243);
+  font-weight: 600;
+}
+
+.ProseMirror .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(200, 200, 255, 0.4);
+  pointer-events: none;
+}
+
+/* 拖拽句柄图标样式 */
+.drag-handle-icon {
+  width: 12px;
+  height: 12px;
+  color: rgba(55, 53, 47, 0.45);
+}
+
+/* TipTap Pro 拖拽句柄样式 */
+.is-drag-handle {
+  position: absolute !important;
+  left: -35px !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: grab !important;
+  border-radius: 3px !important;
+  z-index: 10 !important;
+  transition: all 0.2s !important;
+  background-color: transparent;
+}
+
+.is-drag-handle:hover {
+  background-color: rgba(55, 53, 47, 0.08);
+}
+
+.is-drag-handle:active {
+  cursor: grabbing !important;
+}
+
+/* 确保编辑器内的块元素相对定位 */
+.notion-editor .ProseMirror > * {
+  position: relative;
+}
+
+/* 额外的块元素定位确保 */
+.notion-editor p,
+.notion-editor h1,
+.notion-editor h2,
+.notion-editor h3,
+.notion-editor li,
+.notion-editor blockquote,
+.notion-editor pre,
+.notion-editor hr {
+  position: relative;
+}
+
+/* 拖拽时的样式 */
+.ProseMirror .dragging {
+  opacity: 0.5;
+}
+
+.ProseMirror .drop-target {
+  border-top: 2px solid rgb(46, 170, 220);
+}

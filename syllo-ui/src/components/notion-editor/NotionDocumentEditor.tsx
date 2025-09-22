@@ -3,13 +3,9 @@
 import { useState, useMemo, useCallback } from "react";
 import { DocumentOutline } from "@/components/document-outline";
 import { FeishuNav } from "@/components/feishu-nav";
-import { TiptapEditor } from "./core/TiptapEditor";
-import { Toolbar } from "@/components/editor-essentials/toolbar/Toolbar";
-import { DocumentTitle } from "@/components/editor-essentials/toolbar/DocumentTitle";
-import { DocumentMeta } from "@/components/editor-essentials/toolbar/DocumentMeta";
-import styles from "@/components/editor-essentials/styles/editor.module.css";
+import { NotionEditor } from "./NotionEditor";
 
-interface TiptapDocumentEditorProps {
+interface NotionDocumentEditorProps {
   initialContent?: any;
   onContentChange?: (content: any) => void;
   title?: string;
@@ -25,7 +21,7 @@ interface TiptapDocumentEditorProps {
 }
 
 // 从 Tiptap JSON 内容中提取目录数据
-const extractTocFromTiptap = (content: any) => {
+const extractTocFromContent = (content: any) => {
   if (!content || !content.content) return [];
 
   const toc: any[] = [];
@@ -37,7 +33,7 @@ const extractTocFromTiptap = (content: any) => {
     if (node.type === 'heading') {
       const level = node.attrs?.level || 1;
       const text = node.content?.[0]?.text || '';
-      const id = `tiptap-heading-${headingIndex++}`;  // 使用递增索引确保唯一性
+      const id = `heading-${headingIndex++}`;
 
       if (level === 1) {
         currentH1 = { id, title: text, level: 1, children: [] };
@@ -61,13 +57,13 @@ const extractTocFromTiptap = (content: any) => {
   return toc;
 };
 
-export const TiptapDocumentEditor: React.FC<TiptapDocumentEditorProps> = ({
+export const NotionDocumentEditor: React.FC<NotionDocumentEditorProps> = ({
   initialContent,
   onContentChange,
-  title = "产品文档",
+  title = "Notion 文档",
   breadcrumbs = [
-    { id: '1', label: '文档' },
-    { id: '2', label: '产品文档' }
+    { id: '1', label: '工作空间' },
+    { id: '2', label: 'Notion 文档' }
   ],
   isPinned = false,
   lastModified = "最近修改: 刚刚",
@@ -84,7 +80,7 @@ export const TiptapDocumentEditor: React.FC<TiptapDocumentEditorProps> = ({
 
   // 从编辑器内容中提取目录数据
   const tocData = useMemo(() => {
-    return extractTocFromTiptap(editorContent);
+    return extractTocFromContent(editorContent);
   }, [editorContent]);
 
   // 处理内容更新
@@ -99,8 +95,8 @@ export const TiptapDocumentEditor: React.FC<TiptapDocumentEditorProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Feishu Navigation Bar */}
+    <div className="min-h-screen bg-white">
+      {/* Feishu Navigation Bar - 复用飞书导航栏 */}
       <FeishuNav
         breadcrumbs={breadcrumbs}
         title={documentTitle}
@@ -114,43 +110,34 @@ export const TiptapDocumentEditor: React.FC<TiptapDocumentEditorProps> = ({
         onSidebarToggle={handleSidebarToggle}
       />
 
-      {/* Main Content - 完美的间距设置 */}
-      <div className="relative w-full" style={{ paddingTop: '40px' }}>
-        {/* Left sidebar with TOC - fixed position */}
+      {/* Main Content - 正确避开导航栏 */}
+      <div className="relative w-full" style={{ paddingTop: '80px' }}>
+        {/* Left sidebar with TOC - 组件已内置正确布局 */}
         <DocumentOutline
           tocData={tocData}
           isCollapsed={sidebarCollapsed}
           onCollapsedChange={setSidebarCollapsed}
-          className="fixed left-0 top-16 bottom-0 z-10"
+          className="fixed z-10"
+
         />
 
-        {/* Main Editor Content - 完美的间距 */}
+        {/* Main Editor Content - Notion 风格编辑器 */}
         <main
           className="min-h-screen transition-all duration-300"
           style={{
-            marginLeft: sidebarCollapsed ? '80px' : '320px',
+            marginLeft: sidebarCollapsed ? '100px' : '340px',  // 调整为：20px(目录左移) + 原来的宽度
             marginRight: '66px',
-            maxWidth: sidebarCollapsed ? 'calc(100% - 146px)' : 'calc(100% - 386px)'
+            maxWidth: sidebarCollapsed ? 'calc(100% - 166px)' : 'calc(100% - 406px)',
+            paddingTop: '40px'  // 额外的顶部间距，让标题不贴着导航栏
           }}
         >
-          <div className={styles.editorContainer}>
-            <div className={styles.editorHeader}>
-              <Toolbar />
-              <DocumentTitle
-                defaultTitle={documentTitle}
-                onChange={setDocumentTitle}
-              />
-              <DocumentMeta
-                author={userName}
-                lastModified={lastModified.replace('最近修改: ', '')}
-              />
-            </div>
-            <TiptapEditor
-              content={initialContent}
-              onUpdate={handleContentUpdate}
-              placeholder="输入 '/' 查看命令..."
-            />
-          </div>
+          <NotionEditor
+            title={documentTitle}
+            onTitleChange={setDocumentTitle}
+            content={initialContent}
+            onUpdate={handleContentUpdate}
+            placeholder="输入 '/' 获取命令菜单，或开始输入..."
+          />
         </main>
       </div>
     </div>

@@ -174,6 +174,7 @@ export default function DocumentOutline({
         className
       )}
       style={{
+        marginLeft: "20px",  // 往右移20px，更好的视觉效果
         "--header-height": "64px",
         fontFamily: "LarkHackSafariFont, LarkEmojiFont, LarkChineseQuote, -apple-system, system-ui, 'Helvetica Neue', Tahoma, 'PingFang SC', 'Microsoft Yahei', Arial, 'Hiragino Sans GB', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
         fontSize: "14px",
@@ -184,7 +185,7 @@ export default function DocumentOutline({
         ref={tocContainerRef}
         className="w-full relative flex flex-col h-full transition-all duration-300 overflow-y-auto"
         style={{
-          paddingTop: "16px",
+          paddingTop: "8px",  // 减小顶部间距，让目录更贴近导航栏
           paddingBottom: "24px"
         }}
       >
