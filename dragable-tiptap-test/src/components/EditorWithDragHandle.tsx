@@ -9,7 +9,7 @@ import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
 import Underline from '@tiptap/extension-underline'
 import type { JSONContent } from '@tiptap/core'
-import { DragHandleReact as DragHandle } from '../extension/extension-drag-handle/src/react/DragHandleReact'
+import { DragHandleReact as DragHandle } from '../extensions/extension-drag-handle/src/react/DragHandleReact'
 
 import './Editor.css'
 import './DragHandle.css'

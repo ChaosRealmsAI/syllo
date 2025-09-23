@@ -276,6 +276,15 @@ export const DragHandlePlugin = ({
 
             const domNodePos = view.posAtDOM(domNode, 0)
             const outerNode = getOuterNode(editor.state.doc, domNodePos)
+
+            if (!outerNode) {
+              hideHandle()
+              currentNode = null
+              currentNodePos = -1
+              onNodeChange?.({ editor, node: null, pos: -1 })
+              return
+            }
+
             const outerNodePos = getOuterNodePos(editor.state.doc, domNodePos) // TODO: needed?
 
             currentNode = outerNode
@@ -378,7 +387,6 @@ export const DragHandlePlugin = ({
               }
 
               let domNode = nodeData.resultElement as HTMLElement
-
               domNode = getOuterDomNode(view, domNode)
 
               // Skip if domNode is editor dom.
@@ -393,6 +401,11 @@ export const DragHandlePlugin = ({
 
               const domNodePos = view.posAtDOM(domNode, 0)
               const outerNode = getOuterNode(editor.state.doc, domNodePos)
+
+              if (!outerNode) {
+                hideHandle()
+                return
+              }
 
               if (outerNode !== currentNode) {
                 const outerNodePos = getOuterNodePos(editor.state.doc, domNodePos)

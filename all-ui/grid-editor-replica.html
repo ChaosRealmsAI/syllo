@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Editor Replica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Dark theme (default) */
+        :root {
+            --text-primary: rgb(240, 240, 240);
+            --text-secondary: rgb(235, 235, 235);
+            --bg-overlay: rgba(0, 0, 0, 0.3);
+            --icon-gray: rgb(187, 191, 196);
+            --primary-blue: rgb(51, 112, 255);
+            --link-blue: rgb(76, 136, 255);
+            --bg-hover: rgb(80, 80, 80);
+            --bg-column: rgba(166, 166, 166, 0.08);
+            --highlight-orange: rgba(242, 150, 44, 0.17);
+            --text-red: rgb(250, 120, 115);
+            --bg-main: #1a1a1a;
+            --bg-page: #0d0d0d;
+            --dragger-color: rgb(80, 80, 80);
+            --percent-text: rgb(255, 255, 255);
+        }
+
+        /* Light theme */
+        [data-theme="light"] {
+            --text-primary: rgb(31, 35, 41);
+            --text-secondary: rgb(255, 255, 255);
+            --bg-overlay: rgba(0, 0, 0, 0.3);
+            --icon-gray: rgb(187, 191, 196);
+            --primary-blue: rgb(51, 112, 255);
+            --link-blue: rgb(76, 136, 255);
+            --bg-hover: rgb(222, 224, 227);
+            --bg-column: rgba(0, 0, 0, 0.03);
+            --highlight-orange: rgba(242, 150, 44, 0.17);
+            --text-red: rgb(250, 120, 115);
+            --bg-main: #ffffff;
+            --bg-page: #f5f5f5;
+            --dragger-color: rgb(222, 224, 227);
+            --percent-text: rgb(255, 255, 255);
+        }
+
+        body {
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-family: -apple-system, "system-ui", "Helvetica Neue", Tahoma, "PingFang SC", "Microsoft Yahei", Arial, sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Column resize handle */
+        .column-gap {
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .grid-block:hover .column-gap {
+            opacity: 1;
+        }
+
+        /* Add column button animation */
+        .add-column-btn {
+            opacity: 0;
+            transform: scale(0);
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .column-gap:hover .add-column-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Column highlight on hover */
+        .grid-column {
+            background: var(--bg-column);
+            box-shadow: 0 0 0 4px var(--bg-column);
+            transition: background-color 0.25s, box-shadow 0.25s;
+            border-radius: 4px;
+            margin: 0 -2px;
+            padding: 0 2px;
+        }
+
+        /* Content editable focus */
+        [contenteditable]:focus {
+            outline: none;
+        }
+
+        /* Fold handler */
+        .fold-handler {
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .heading-block:hover .fold-handler {
+            opacity: 1;
+        }
+
+        /* Orange background highlight */
+        .background-highlight {
+            background: var(--highlight-orange);
+            border-radius: 6px;
+        }
+
+        /* Bullet style */
+        .bullet-dot::before {
+            content: "•";
+            color: var(--link-blue);
+            font-size: 22px;
+            line-height: 1;
+            display: inline-block;
+            width: 20px;
+            margin-right: 6px;
+        }
+
+        /* Resize cursor */
+        .resize-handle {
+            cursor: col-resize;
+        }
+
+        /* Text selection */
+        ::selection {
+            background: rgba(51, 112, 255, 0.3);
+        }
+
+        /* Percentage labels - hidden by default */
+        .grid-column-percent {
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: var(--bg-overlay);
+            color: var(--percent-text);
+        }
+
+        /* Show percentage when dragging */
+        .dragging .grid-column-percent {
+            opacity: 1;
+        }
+
+        /* Dragging state */
+        .dragging {
+            user-select: none;
+        }
+
+        .dragging .resize-handle {
+            background: rgba(51, 112, 255, 0.1);
+        }
+
+        .resize-handle:hover {
+            background: rgba(51, 112, 255, 0.05);
+        }
+
+        /* Active dragging indicator */
+        .drag-active .dragger {
+            background: var(--primary-blue) !important;
+            width: 3px !important;
+        }
+
+        /* Dragger bar color */
+        .dragger {
+            background: var(--dragger-color) !important;
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 8px 16px;
+            background: var(--bg-overlay);
+            color: var(--percent-text);
+            border: 1px solid var(--icon-gray);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        /* Page container background */
+        .page-block-children {
+            background: var(--bg-main);
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle">
+        <span id="themeText">🌙 暗色</span>
+    </button>
+
+    <div class="page-block-children p-8 mx-auto max-w-[1400px]">
+        <!-- First Grid Block -->
+        <div class="grid-block mb-4 rounded-lg">
+            <div class="flex items-stretch">
+                <!-- Column 1 (11%) -->
+                <div class="grid-column relative" style="flex: 0 0 calc(11.1952% - 8.5px);">
+                    <div class="px-2 py-0">
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5">123</div>
+                        </div>
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5">Fsdsfd</div>
+                        </div>
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5">Dsf</div>
+                        </div>
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                        <div class="text-block">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                    </div>
+                    <span class="grid-column-percent absolute -top-0.5 -right-0.5 text-xs px-1 rounded">11%</span>
+                </div>
+
+                <!-- Column Gap with resize handle -->
+                <div class="column-gap w-3 mx-1.5 relative flex items-center">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                        <div class="w-1 h-1 bg-[var(--icon-gray)] rounded-full"></div>
+                        <button class="add-column-btn absolute w-5 h-6 flex items-center justify-center">
+                            <svg width="22" height="24" viewBox="0 0 22 24" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="resize-handle w-full h-[calc(100%-32px)] flex items-center justify-center px-1.5">
+                        <div class="w-0.5 h-full rounded-sm dragger"></div>
+                    </div>
+                </div>
+
+                <!-- Column 2 (20%) -->
+                <div class="grid-column relative" style="flex: 0 0 calc(19.5024% - 14.82px);">
+                    <div class="px-2 py-0">
+                        <div class="text-block">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                    </div>
+                    <span class="grid-column-percent absolute -top-0.5 -right-0.5 text-xs px-1 rounded">20%</span>
+                </div>
+
+                <!-- Column Gap -->
+                <div class="column-gap w-3 mx-1.5 relative flex items-center">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                        <div class="w-1 h-1 bg-[var(--icon-gray)] rounded-full"></div>
+                        <button class="add-column-btn absolute w-5 h-6 flex items-center justify-center">
+                            <svg width="22" height="24" viewBox="0 0 22 24" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="resize-handle w-full h-[calc(100%-32px)] flex items-center justify-center px-1.5">
+                        <div class="w-0.5 h-full rounded-sm dragger"></div>
+                    </div>
+                </div>
+
+                <!-- Column 3 (30%) -->
+                <div class="grid-column relative" style="flex: 0 0 calc(29.5475% - 22.46px);">
+                    <div class="px-2 py-0">
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5">Werwerw</div>
+                        </div>
+                        <div class="text-block">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                    </div>
+                    <span class="grid-column-percent absolute -top-0.5 -right-0.5 text-xs px-1 rounded">30%</span>
+                </div>
+
+                <!-- Column Gap -->
+                <div class="column-gap w-3 mx-1.5 relative flex items-center">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                        <div class="w-1 h-1 bg-[var(--icon-gray)] rounded-full"></div>
+                        <button class="add-column-btn absolute w-5 h-6 flex items-center justify-center">
+                            <svg width="22" height="24" viewBox="0 0 22 24" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="resize-handle w-full h-[calc(100%-32px)] flex items-center justify-center px-1.5">
+                        <div class="w-0.5 h-full bg-[var(--bg-hover)] rounded-sm dragger"></div>
+                    </div>
+                </div>
+
+                <!-- Column 4 (19%) -->
+                <div class="grid-column relative" style="flex: 0 0 calc(18.8776% - 14.35px);">
+                    <div class="px-2 py-0">
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5">Sdfsdf</div>
+                        </div>
+                        <div class="text-block">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                    </div>
+                    <span class="grid-column-percent absolute -top-0.5 -right-0.5 text-xs px-1 rounded">19%</span>
+                </div>
+
+                <!-- Column Gap -->
+                <div class="column-gap w-3 mx-1.5 relative flex items-center">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                        <div class="w-1 h-1 bg-[var(--icon-gray)] rounded-full"></div>
+                        <button class="add-column-btn absolute w-5 h-6 flex items-center justify-center">
+                            <svg width="22" height="24" viewBox="0 0 22 24" fill="none">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.153 20.721A10.999 10.999 0 0022 11c0-6.075-4.925-11-11-11S0 4.925 0 11c0 4.213 2.369 7.873 5.847 9.721L11 24l5.153-3.279z" fill="#3370FF"/>
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.45 6a.2.2 0 00-.2.2v4.05H6.2a.2.2 0 00-.2.2v1.1c0 .11.09.2.2.2h4.05v4.05c0 .11.09.2.2.2h1.1a.2.2 0 00.2-.2v-4.05h4.05a.2.2 0 00.2-.2v-1.1a.2.2 0 00-.2-.2h-4.05V6.2a.2.2 0 00-.2-.2h-1.1z" fill="#fff"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="resize-handle w-full h-[calc(100%-32px)] flex items-center justify-center px-1.5">
+                        <div class="w-0.5 h-full bg-[var(--bg-hover)] rounded-sm dragger"></div>
+                    </div>
+                </div>
+
+                <!-- Column 5 (21%) -->
+                <div class="grid-column relative" style="flex: 0 0 calc(20.8774% - 15.87px);">
+                    <div class="px-2 py-0">
+                        <!-- Heading 5 -->
+                        <div class="heading-block relative">
+                            <div class="flex items-baseline">
+                                <div class="flex-1">
+                                    <div contenteditable="true" class="min-h-[22px] text-[var(--text-primary)] text-base font-medium leading-[22px] px-0.5 break-all">1121111111121111111121111111121111111121111111121111111121111115</div>
+                                </div>
+                                <button class="fold-handler absolute -left-5 top-0.5 w-4 h-4 rounded hover:bg-gray-700">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M7.712 11.351L3.34 5.9a.45.45 0 010-.538.278.278 0 01.215-.112h8.89c.168 0 .305.17.305.381a.432.432 0 01-.09.269l-4.372 5.451c-.159.199-.417.199-.576 0z" fill="#2B2F36"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-block mt-2 mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                        <div class="text-block mb-2">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                        <div class="text-block">
+                            <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5"></div>
+                        </div>
+                    </div>
+                    <span class="grid-column-percent absolute -top-0.5 -right-0.5 text-xs px-1 rounded">21%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Column resizing functionality
+        class ColumnResizer {
+            constructor(gridBlock) {
+                this.gridBlock = gridBlock;
+                this.columns = [];
+                this.isDragging = false;
+                this.currentHandle = null;
+                this.startX = 0;
+                this.startWidths = [];
+                this.minColumnWidth = 5; // Minimum 5% width
+
+                this.init();
+            }
+
+            init() {
+                // Get all resize handles in this grid block
+                const handles = this.gridBlock.querySelectorAll('.resize-handle');
+
+                handles.forEach((handle, index) => {
+                    handle.addEventListener('mousedown', (e) => this.startDragging(e, index));
+
+                    // Visual feedback on hover
+                    handle.addEventListener('mouseenter', () => {
+                        if (!this.isDragging) {
+                            handle.parentElement.classList.add('hover');
+                        }
+                    });
+
+                    handle.addEventListener('mouseleave', () => {
+                        if (!this.isDragging) {
+                            handle.parentElement.classList.remove('hover');
+                        }
+                    });
+                });
+
+                // Global mouse events
+                document.addEventListener('mousemove', (e) => this.drag(e));
+                document.addEventListener('mouseup', () => this.stopDragging());
+            }
+
+            startDragging(e, handleIndex) {
+                e.preventDefault();
+
+                this.isDragging = true;
+                this.currentHandleIndex = handleIndex;
+                this.startX = e.clientX;
+
+                // Get all columns
+                this.columns = Array.from(this.gridBlock.querySelectorAll('.grid-column'));
+
+                // Store initial widths
+                this.startWidths = this.columns.map(col => {
+                    const style = col.getAttribute('style');
+                    const match = style.match(/calc\(([\d.]+)%/);
+                    return match ? parseFloat(match[1]) : 0;
+                });
+
+                // Add dragging class for visual feedback
+                document.body.classList.add('dragging');
+                const handle = e.target.closest('.column-gap');
+                handle.classList.add('drag-active');
+
+                // Change cursor
+                document.body.style.cursor = 'col-resize';
+            }
+
+            drag(e) {
+                if (!this.isDragging) return;
+
+                const deltaX = e.clientX - this.startX;
+                const containerWidth = this.gridBlock.offsetWidth;
+                const deltaPercent = (deltaX / containerWidth) * 100;
+
+                // Calculate new widths for adjacent columns
+                const leftIndex = this.currentHandleIndex;
+                const rightIndex = this.currentHandleIndex + 1;
+
+                if (leftIndex < this.columns.length && rightIndex < this.columns.length) {
+                    const newLeftWidth = this.startWidths[leftIndex] + deltaPercent;
+                    const newRightWidth = this.startWidths[rightIndex] - deltaPercent;
+
+                    // Check minimum width constraints
+                    if (newLeftWidth >= this.minColumnWidth && newRightWidth >= this.minColumnWidth) {
+                        // Update column widths
+                        this.updateColumnWidth(this.columns[leftIndex], newLeftWidth);
+                        this.updateColumnWidth(this.columns[rightIndex], newRightWidth);
+
+                        // Update percentage labels
+                        this.updatePercentageLabel(this.columns[leftIndex], newLeftWidth);
+                        this.updatePercentageLabel(this.columns[rightIndex], newRightWidth);
+                    }
+                }
+            }
+
+            stopDragging() {
+                if (!this.isDragging) return;
+
+                this.isDragging = false;
+                document.body.classList.remove('dragging');
+                document.body.style.cursor = '';
+
+                // Remove active class from all handles
+                const handles = this.gridBlock.querySelectorAll('.column-gap');
+                handles.forEach(handle => handle.classList.remove('drag-active'));
+            }
+
+            updateColumnWidth(column, percentage) {
+                // Calculate the gap adjustment based on original style
+                const style = column.getAttribute('style');
+                const match = style.match(/calc\([^)]+\)/);
+                if (match) {
+                    const gapMatch = match[0].match(/- ([\d.]+)px/);
+                    const gap = gapMatch ? gapMatch[0] : '- 8px';
+                    column.setAttribute('style', `flex: 0 0 calc(${percentage.toFixed(4)}% ${gap});`);
+                }
+            }
+
+            updatePercentageLabel(column, percentage) {
+                const label = column.querySelector('.grid-column-percent');
+                if (label) {
+                    label.textContent = `${Math.round(percentage)}%`;
+                }
+            }
+        }
+
+        // Initialize resizers for all grid blocks
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridBlocks = document.querySelectorAll('.grid-block');
+            gridBlocks.forEach(block => {
+                new ColumnResizer(block);
+            });
+
+            // Add column functionality (bonus)
+            const addButtons = document.querySelectorAll('.add-column-btn');
+            addButtons.forEach((btn, index) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addNewColumn(e.target.closest('.column-gap'));
+                });
+            });
+        });
+
+        // Function to add a new column
+        function addNewColumn(gap) {
+            const gridBlock = gap.closest('.grid-block');
+            const flexContainer = gridBlock.querySelector('.flex');
+
+            // Create new column
+            const newColumn = document.createElement('div');
+            newColumn.className = 'grid-column relative';
+            newColumn.style = 'flex: 0 0 calc(20% - 8px);';
+            newColumn.innerHTML = `
+                <div class="px-2 py-0">
+                    <div class="text-block">
+                        <div contenteditable="true" class="min-h-[26px] text-[var(--text-primary)] text-base leading-[26px] px-0.5">新列</div>
+                    </div>
+                </div>
+                <span class="grid-column-percent absolute -top-0.5 -right-0.5 text-xs px-1 rounded">20%</span>
+            `;
+
+            // Create new gap
+            const newGap = gap.cloneNode(true);
+
+            // Insert after the current gap
+            gap.after(newColumn);
+            newColumn.after(newGap);
+
+            // Recalculate all column widths
+            redistributeColumns(gridBlock);
+
+            // Reinitialize resizer for this grid block
+            new ColumnResizer(gridBlock);
+        }
+
+        // Redistribute column widths evenly
+        function redistributeColumns(gridBlock) {
+            const columns = gridBlock.querySelectorAll('.grid-column');
+            const count = columns.length;
+            const newWidth = 100 / count;
+
+            columns.forEach(col => {
+                col.style.flex = `0 0 calc(${newWidth.toFixed(2)}% - ${8 + (count-1) * 2}px)`;
+                const label = col.querySelector('.grid-column-percent');
+                if (label) {
+                    label.textContent = `${Math.round(newWidth)}%`;
+                }
+            });
+        }
+
+        // Enable contenteditable focus styles
+        document.addEventListener('DOMContentLoaded', () => {
+            const editables = document.querySelectorAll('[contenteditable]');
+            editables.forEach(el => {
+                el.addEventListener('focus', () => {
+                    el.parentElement.classList.add('focused');
+                });
+                el.addEventListener('blur', () => {
+                    el.parentElement.classList.remove('focused');
+                });
+            });
+
+            // Theme switching functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const themeText = document.getElementById('themeText');
+            const html = document.documentElement;
+
+            // Check for saved theme preference or default to dark
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            if (currentTheme === 'light') {
+                html.setAttribute('data-theme', 'light');
+                themeText.textContent = '☀️ 亮色';
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = html.getAttribute('data-theme');
+
+                if (currentTheme === 'light') {
+                    html.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'dark');
+                    themeText.textContent = '🌙 暗色';
+                } else {
+                    html.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                    themeText.textContent = '☀️ 亮色';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
