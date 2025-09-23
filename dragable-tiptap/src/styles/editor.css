@@ -1,0 +1,249 @@
+/* 编辑器容器样式 */
+.editor-wrapper {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+/* 编辑器内容区域 */
+.editor-content {
+  min-height: 500px;
+  background: white;
+  color: black;
+}
+
+.editor-content .ProseMirror {
+  min-height: 500px;
+  outline: none;
+  padding: 1rem;
+  background: white;
+  color: black;
+}
+
+/* 基础块样式 */
+.editor-content .ProseMirror > * {
+  position: relative;
+  margin-block: 0.75rem;
+}
+
+.editor-content .ProseMirror p {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.editor-content .ProseMirror h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-block: 1rem;
+  color: black;
+}
+
+.editor-content .ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-block: 0.875rem;
+  color: black;
+}
+
+.editor-content .ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-block: 0.75rem;
+  color: black;
+}
+
+.editor-content .ProseMirror ul,
+.editor-content .ProseMirror ol {
+  padding-left: 1.5rem;
+  margin-block: 0.75rem;
+  color: black;
+}
+
+.editor-content .ProseMirror li {
+  margin-block: 0.25rem;
+  color: black;
+}
+
+.editor-content .ProseMirror blockquote {
+  padding-left: 1rem;
+  border-left: 3px solid #e5e7eb;
+  font-style: italic;
+  color: #374151;
+  margin-block: 1rem;
+}
+
+.editor-content .ProseMirror code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.editor-content .ProseMirror pre {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-block: 1rem;
+}
+
+/* 占位符 */
+.editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+/* 拖拽句柄样式 */
+.drag-handle-wrapper {
+  position: absolute;
+  left: -2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ProseMirror > *:hover .drag-handle-wrapper {
+  opacity: 1;
+}
+
+.drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* 拖拽指示器 */
+.drop-indicator.horizontal {
+  animation: pulse-horizontal 0.5s ease-in-out infinite;
+}
+
+.drop-indicator.vertical {
+  animation: pulse-vertical 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse-horizontal {
+  0%, 100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-vertical {
+  0%, 100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleY(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* 列布局样式 */
+.column-layout-wrapper {
+  margin-block: 1rem;
+}
+
+.column-layout {
+  position: relative;
+}
+
+.column-layout .column {
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.column-layout .column:hover {
+  background-color: #f9fafb;
+}
+
+.column-layout .column.drag-over {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+}
+
+/* 拖拽时的样式 */
+.dragging {
+  opacity: 0.5;
+}
+
+.drag-source {
+  opacity: 0.4;
+}
+
+.drag-target {
+  position: relative;
+}
+
+.drag-target::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #3b82f6;
+}
+
+.drag-target.drop-above::before {
+  top: -1px;
+}
+
+.drag-target.drop-below::before {
+  bottom: -1px;
+}
+
+.drag-target.drop-left::before {
+  top: 0;
+  bottom: 0;
+  left: -1px;
+  width: 2px;
+  height: auto;
+}
+
+.drag-target.drop-right::before {
+  top: 0;
+  bottom: 0;
+  right: -1px;
+  width: 2px;
+  height: auto;
+}
+
+/* Dropcursor 扩展样式 */
+.dropcursor {
+  background: #3b82f6 !important;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .editor-wrapper {
+    padding: 1rem;
+  }
+
+  .editor-content .ProseMirror {
+    padding: 0.5rem;
+  }
+
+  .drag-handle-wrapper {
+    left: -1.5rem;
+  }
+
+  .column-layout {
+    grid-template-columns: 1fr !important;
+  }
+}

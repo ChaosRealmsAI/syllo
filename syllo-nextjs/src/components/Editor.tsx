@@ -1,11 +1,11 @@
 'use client'
 
-import ColumnEditor from './ColumnEditor'
+import DragDropEditor from './DragDropEditor'
 
 export default function Editor() {
   return (
     <div>
-      <ColumnEditor />
+      <DragDropEditor />
     </div>
   )
 }

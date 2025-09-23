@@ -1,0 +1,245 @@
+/* 拖拽句柄样式 */
+.drag-handle {
+  position: absolute;
+  left: -28px;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  color: #8b8b8b;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  background: #f0f0f0;
+  color: #333;
+}
+
+.drag-handle.dragging {
+  cursor: grabbing;
+  opacity: 1;
+}
+
+/* 拖拽句柄hover效果 */
+.drag-handle:hover {
+  opacity: 1 !important;
+  background: #f0f0f0;
+  color: #333;
+}
+
+/* 列布局样式 */
+.column-layout {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+  min-height: 100px;
+  position: relative;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  padding: 8px;
+  transition: border-color 0.2s;
+}
+
+.column-layout:hover {
+  border-color: #e0e0e0;
+}
+
+.column {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 4px;
+  min-height: 80px;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.column:hover {
+  background: #f5f5f5;
+}
+
+.column:empty::after {
+  content: '点击添加内容';
+  color: #999;
+  font-size: 14px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* 拖拽指示线 */
+.drop-indicator-horizontal {
+  position: fixed;
+  height: 2px;
+  background: #3b82f6;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+.drop-indicator-vertical {
+  position: fixed;
+  width: 2px;
+  background: #3b82f6;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+/* 拖拽中的元素样式 */
+.ProseMirror .dragging {
+  opacity: 0.5;
+  background: #f0f0f0;
+  border: 2px dashed #3b82f6;
+}
+
+/* 拖拽目标高亮 */
+.drag-target {
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px solid #3b82f6;
+  border-radius: 4px;
+}
+
+/* 列宽度调整手柄 */
+.column-resize-handle {
+  position: absolute;
+  right: -8px;
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.column-layout:hover .column-resize-handle {
+  opacity: 1;
+}
+
+.column-resize-handle::before {
+  content: '';
+  width: 2px;
+  height: 40px;
+  background: #ccc;
+  border-radius: 1px;
+  transition: background-color 0.2s;
+}
+
+.column-resize-handle:hover::before {
+  background: #3b82f6;
+}
+
+/* 编辑器基础样式 */
+.ProseMirror {
+  min-height: 400px;
+  padding: 20px 20px 20px 40px; /* 左侧留出空间给拖拽句柄 */
+  position: relative;
+}
+
+.ProseMirror > * {
+  position: relative;
+}
+
+/* 编辑器容器样式 */
+.editor-content {
+  position: relative;
+}
+
+.ProseMirror p {
+  margin: 8px 0;
+}
+
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  margin: 16px 0 8px 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.ProseMirror blockquote {
+  border-left: 3px solid #e0e0e0;
+  padding-left: 16px;
+  margin: 8px 0;
+  color: #666;
+}
+
+.ProseMirror code {
+  background: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+}
+
+.ProseMirror pre {
+  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* 禁用拖拽时的浏览器默认样式 */
+.column-resizing {
+  user-select: none;
+}
+
+.column-resizing * {
+  cursor: col-resize !important;
+}
+
+/* 添加列按钮 */
+.add-column-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.column-layout:hover .add-column-button {
+  opacity: 1;
+}
+
+.add-column-button:hover {
+  transform: translateY(-50%) scale(1.1);
+  background: #2563eb;
+}
+
+.add-column-button.left {
+  left: -12px;
+}
+
+.add-column-button.right {
+  right: -12px;
+}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拖拽测试页面</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+    }
+
+    .test-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .description {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+
+    .test-section h2 {
+      margin: 0 0 15px 0;
+      color: #444;
+    }
+
+    .test-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .test-list li {
+      background: white;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 4px;
+      border-left: 3px solid #3B82F6;
+    }
+
+    .test-list li.completed {
+      border-left-color: #10B981;
+      background: #f0fdf4;
+    }
+
+    .test-list li.in-progress {
+      border-left-color: #F59E0B;
+      background: #fffbeb;
+    }
+
+    .test-list li.pending {
+      border-left-color: #6B7280;
+      background: #f9fafb;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 10px;
+    }
+
+    .status.completed {
+      background: #10B981;
+      color: white;
+    }
+
+    .status.in-progress {
+      background: #F59E0B;
+      color: white;
+    }
+
+    .status.pending {
+      background: #6B7280;
+      color: white;
+    }
+
+    .test-instructions {
+      background: #EFF6FF;
+      border: 1px solid #DBEAFE;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+
+    .test-instructions h3 {
+      margin: 0 0 10px 0;
+      color: #1E40AF;
+    }
+
+    .test-instructions ul {
+      margin: 10px 0;
+      padding-left: 25px;
+    }
+
+    .test-instructions li {
+      margin: 5px 0;
+      color: #1E40AF;
+    }
+
+    .iframe-container {
+      margin: 30px 0;
+      border: 2px solid #E5E7EB;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 TipTap 编辑器拖拽功能测试</h1>
+    <p class="description">用于验证拖拽句柄和视觉反馈的实现效果</p>
+
+    <div class="test-section">
+      <h2>测试检查清单</h2>
+      <ul class="test-list">
+        <li class="completed">
+          拖拽句柄显示
+          <span class="status completed">已修复</span>
+        </li>
+        <li class="in-progress">
+          拖拽视觉反馈（蓝色指示线）
+          <span class="status in-progress">优化中</span>
+        </li>
+        <li class="pending">
+          纵向拖拽：横线显示
+          <span class="status pending">待测试</span>
+        </li>
+        <li class="pending">
+          横向拖拽：竖线显示
+          <span class="status pending">待测试</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="test-instructions">
+      <h3>📝 测试步骤</h3>
+      <ul>
+        <li>1. 将鼠标悬停在段落左侧，应显示拖拽句柄（⋮⋮⋮）</li>
+        <li>2. 按住拖拽句柄并开始拖动</li>
+        <li>3. 纵向拖动时，应显示蓝色横线（━━━）作为放置位置指示</li>
+        <li>4. 横向拖动时，应显示蓝色竖线（┃）作为放置位置指示</li>
+        <li>5. 松开鼠标，块应移动到新位置</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>实现进度</h2>
+      <ul>
+        <li>✅ 拖拽句柄基础显示</li>
+        <li>✅ 悬停检测和响应</li>
+        <li>✅ 拖拽事件处理</li>
+        <li>🔄 拖拽指示线优化（更原生的效果）</li>
+        <li>🔄 拖拽动画平滑度</li>
+      </ul>
+    </div>
+
+    <div class="iframe-container">
+      <iframe src="http://localhost:3000" title="TipTap Editor"></iframe>
+    </div>
+
+    <div class="test-section">
+      <h2>最新改进</h2>
+      <ul>
+        <li>🎨 使用渐变色和阴影效果增强指示线视觉效果</li>
+        <li>⚡ 优化拖拽检测逻辑，使用相对位置计算</li>
+        <li>🔧 修复CSS类名不匹配的问题</li>
+        <li>✨ 添加平滑的过渡动画</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

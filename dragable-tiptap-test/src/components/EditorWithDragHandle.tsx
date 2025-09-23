@@ -1,15 +1,18 @@
 'use client'
 
 import { useEditor, EditorContent } from '@tiptap/react'
-import { useRef, useEffect, useState } from 'react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import Underline from '@tiptap/extension-underline'
 import type { JSONContent } from '@tiptap/core'
-import { DragHandleExtension } from '@/extensions/drag-handle/DragHandleExtension'
+import { DragHandleReact as DragHandle } from '../extension/extension-drag-handle/src/react/DragHandleReact'
 
 import './Editor.css'
+import './DragHandle.css'
 
 const initialContent: JSONContent = {
   type: 'doc',
@@ -17,19 +20,30 @@ const initialContent: JSONContent = {
     {
       type: 'heading',
       attrs: { level: 1 },
-      content: [{ type: 'text', text: '支持拖拽的编辑器' }]
+      content: [{ type: 'text', text: '拖拽功能测试' }]
     },
     {
       type: 'paragraph',
       content: [
-        { type: 'text', text: '将鼠标悬停在段落左侧，会显示拖拽句柄 ' },
-        { type: 'text', text: '⋮', marks: [{ type: 'bold' }] }
+        { type: 'text', text: '将鼠标悬停在段落左侧，即可看到拖拽句柄。' }
       ]
     },
     {
       type: 'heading',
       attrs: { level: 2 },
-      content: [{ type: 'text', text: '功能说明' }]
+      content: [{ type: 'text', text: '功能测试' }]
+    },
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: '这是第一个段落。鼠标悬停在左侧会显示拖拽句柄 ⋮' }
+      ]
+    },
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: '这是第二个段落。每个块级元素都可以拖拽。' }
+      ]
     },
     {
       type: 'bulletList',
@@ -39,7 +53,7 @@ const initialContent: JSONContent = {
           content: [
             {
               type: 'paragraph',
-              content: [{ type: 'text', text: '鼠标悬停检测：自动检测鼠标附近的内容块' }]
+              content: [{ type: 'text', text: '列表项也可以拖拽' }]
             }
           ]
         },
@@ -48,74 +62,9 @@ const initialContent: JSONContent = {
           content: [
             {
               type: 'paragraph',
-              content: [{ type: 'text', text: '智能显示：只在鼠标靠近时显示拖拽句柄' }]
+              content: [{ type: 'text', text: '任何块级元素都支持' }]
             }
           ]
-        },
-        {
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: '性能优化：使用 RAF 优化鼠标移动检测' }]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      type: 'paragraph',
-      content: [
-        { type: 'text', text: '试试将鼠标移动到这个段落的左侧！' }
-      ]
-    },
-    {
-      type: 'heading',
-      attrs: { level: 3 },
-      content: [{ type: 'text', text: '任务列表示例' }]
-    },
-    {
-      type: 'taskList',
-      content: [
-        {
-          type: 'taskItem',
-          attrs: { checked: true },
-          content: [
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: '实现鼠标检测' }]
-            }
-          ]
-        },
-        {
-          type: 'taskItem',
-          attrs: { checked: true },
-          content: [
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: '显示拖拽句柄' }]
-            }
-          ]
-        },
-        {
-          type: 'taskItem',
-          attrs: { checked: false },
-          content: [
-            {
-              type: 'paragraph',
-              content: [{ type: 'text', text: '实现拖拽功能' }]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      type: 'codeBlock',
-      attrs: { language: 'javascript' },
-      content: [
-        {
-          type: 'text',
-          text: '// 代码块也支持拖拽句柄\nconst dragHandle = {\n  show: true,\n  position: "left"\n}'
         }
       ]
     },
@@ -127,9 +76,18 @@ const initialContent: JSONContent = {
           content: [
             {
               type: 'text',
-              text: '引用块同样支持拖拽句柄显示'
+              text: '引用块也可以拖拽重排'
             }
           ]
+        }
+      ]
+    },
+    {
+      type: 'codeBlock',
+      content: [
+        {
+          type: 'text',
+          text: '// 代码块同样支持拖拽\nconst dragHandle = "⋮"'
         }
       ]
     }
@@ -137,22 +95,30 @@ const initialContent: JSONContent = {
 }
 
 const EditorWithDragHandle = () => {
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const handleRef = useRef<HTMLDivElement>(null)
-  const [handleElement, setHandleElement] = useState<HTMLElement | null>(null)
-
-  useEffect(() => {
-    if (handleRef.current && wrapperRef.current) {
-      setHandleElement(handleRef.current)
-    }
-  }, [])
-
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: {
           levels: [1, 2, 3, 4, 5, 6],
+        },
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: false,
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: 'code-block',
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'blockquote',
+          },
         },
       }),
       Placeholder.configure({
@@ -162,106 +128,61 @@ const EditorWithDragHandle = () => {
       TaskItem.configure({
         nested: true,
       }),
-      ...(handleElement ? [
-        DragHandleExtension.configure({
-          element: handleElement,
-          onNodeHover: (element) => {
-            if (element) {
-              console.log('Hovering node:', element)
-            }
-          },
-        })
-      ] : []),
+      Image.configure({
+        HTMLAttributes: {
+          class: 'editor-image',
+        },
+      }),
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+      }),
+      Underline,
     ],
     content: initialContent,
     editorProps: {
       attributes: {
         class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] p-8',
-        style: 'padding-left: 60px;', // 为拖拽句柄留出空间
       },
     },
-  }, [handleElement])
+  })
+
+  if (!editor) {
+    return null
+  }
 
   return (
     <div className="editor-container">
-      <div className="editor-wrapper" style={{ position: 'relative' }}>
-        {/* Wrapper for Drag Handle - doesn't intercept mouse events */}
-        <div
-          ref={wrapperRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            pointerEvents: 'none', // Critical: wrapper doesn't intercept events
-            zIndex: 1000,
-          }}
-        >
-          {/* Drag Handle UI */}
-          <div
-            ref={handleRef}
-            className="drag-handle-ui"
-            style={{
-              position: 'absolute',
-              width: '24px',
-              height: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#f0f0f0',
-              borderRadius: '4px',
-              cursor: 'grab',
-              transition: 'background 0.2s',
-              visibility: 'hidden',
-              pointerEvents: 'auto', // Handle can be interacted with
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e0e0e0'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f0f0f0'
-            }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.cursor = 'grabbing'
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.cursor = 'grab'
-            }}
+      <div className="editor-header">
+        <h1>TipTap 富文本编辑器 - 拖拽功能测试</h1>
+        <p>将鼠标悬停在任何段落左侧即可看到拖拽句柄（⋮⋮⋮）</p>
+      </div>
+      <DragHandle editor={editor}>
+        <div className="drag-handle-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <svg
-              width="12"
-              height="20"
-              viewBox="0 0 12 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle cx="3" cy="3" r="2" fill="#666" />
-              <circle cx="9" cy="3" r="2" fill="#666" />
-              <circle cx="3" cy="10" r="2" fill="#666" />
-              <circle cx="9" cy="10" r="2" fill="#666" />
-              <circle cx="3" cy="17" r="2" fill="#666" />
-              <circle cx="9" cy="17" r="2" fill="#666" />
-            </svg>
-          </div>
+            <circle cx="12" cy="5" r="1"></circle>
+            <circle cx="12" cy="12" r="1"></circle>
+            <circle cx="12" cy="19" r="1"></circle>
+            <circle cx="6" cy="5" r="1"></circle>
+            <circle cx="6" cy="12" r="1"></circle>
+            <circle cx="6" cy="19" r="1"></circle>
+            <circle cx="18" cy="5" r="1"></circle>
+            <circle cx="18" cy="12" r="1"></circle>
+            <circle cx="18" cy="19" r="1"></circle>
+          </svg>
         </div>
-        <EditorContent editor={editor} />
-      </div>
-
-      {/* 使用说明 */}
-      <div style={{
-        marginTop: '2rem',
-        padding: '1rem',
-        background: '#f5f5f5',
-        borderRadius: '8px',
-        fontSize: '0.875rem',
-        color: '#666'
-      }}>
-        <strong>💡 使用提示：</strong>
-        <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-          <li>将鼠标移动到任何段落、标题、列表等内容的左侧</li>
-          <li>会自动显示拖拽句柄（灰色的六个点）</li>
-          <li>拖拽功能将在下一步实现</li>
-        </ul>
-      </div>
+      </DragHandle>
+      <EditorContent editor={editor} />
     </div>
   )
 }
