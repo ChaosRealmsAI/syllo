@@ -1,0 +1,349 @@
+/* 列编辑器样式 */
+.column-editor-container {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+  user-select: none;
+}
+
+
+/* 百分比标签 */
+.column-editor-container .grid-column-percent {
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* 网格容器 */
+.column-editor-container .grid-block {
+  background: #ffffff;
+  position: relative;
+}
+
+/* 列样式 */
+.column-editor-container .column {
+  position: relative;
+  transition: background-color 0.2s ease;
+  box-sizing: border-box;
+  overflow: visible;
+  background-color: #ffffff;
+}
+
+.column-editor-container .column:hover {
+  background-color: #f7f7f7;
+}
+
+/* 列内容区 */
+.column-editor-container .column-content {
+  min-height: 100px;
+  transition: all 0.2s;
+  word-break: break-word;
+  white-space: pre-wrap;
+  color: #1f2329;
+  font-size: 14px;
+  line-height: 22px;
+  box-sizing: border-box;
+}
+
+.column-editor-container .column-content:focus {
+  outline: none;
+}
+
+.column-editor-container .column-content:focus-visible {
+  outline: none;
+}
+
+.column-editor-container .column-content p {
+  margin: 0 0 8px 0;
+}
+
+.column-editor-container .column-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* 删除列按钮 */
+.column-editor-container .remove-column-btn {
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.column-editor-container .column:hover .remove-column-btn {
+  opacity: 1;
+}
+
+.column-editor-container .remove-column-btn:hover {
+  transform: scale(1.05);
+}
+
+/* 列间控制区 */
+.column-editor-container .column-gap {
+  user-select: none;
+}
+
+/* 拖拽手柄 */
+.column-editor-container .dragger {
+  position: relative;
+  cursor: col-resize;
+}
+
+/* 添加列按钮 */
+.column-editor-container .add-column-btn {
+  opacity: 0;
+  animation: fadeInScale 0.2s ease-out forwards;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.column-editor-container .add-column-btn:active {
+  transform: scale(0.95) !important;
+}
+
+/* 工具栏按钮 */
+.column-editor-container .toolbar {
+  padding: 0 2px;
+}
+
+.column-editor-container .toolbar-btn {
+  transition: all 0.2s;
+  font-family: inherit;
+  outline: none;
+}
+
+.column-editor-container .toolbar-btn:focus-visible {
+  outline: 2px solid #3370ff;
+  outline-offset: 2px;
+}
+
+.column-editor-container .toolbar-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* 拖拽时的全局样式 */
+body.column-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.column-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+/* 拖拽时禁用列的过渡效果 */
+body.column-resizing .column-editor-container .column {
+  transition: none !important;
+}
+
+body.column-resizing .column-editor-container .grid-column-percent {
+  transition: none !important;
+}
+
+/* 动画效果 */
+.column-editor-container * {
+  box-sizing: border-box;
+}
+
+/* 编辑时的光标 */
+.column-editor-container .column-content[contenteditable] {
+  cursor: text;
+}
+
+/* TipTap 编辑器样式 */
+.column-editor-container .column-editor-content {
+  color: #1f2329;
+  font-size: 14px;
+  line-height: 22px;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+}
+
+.column-editor-container .column-editor-content:focus {
+  outline: none;
+}
+
+.column-editor-container .column-editor-content p {
+  margin: 0 0 8px 0;
+}
+
+.column-editor-container .column-editor-content p:last-child {
+  margin-bottom: 0;
+}
+
+.column-editor-container .column-editor-content h1,
+.column-editor-container .column-editor-content h2,
+.column-editor-container .column-editor-content h3,
+.column-editor-container .column-editor-content h4,
+.column-editor-container .column-editor-content h5,
+.column-editor-container .column-editor-content h6 {
+  margin: 16px 0 8px 0;
+  font-weight: 600;
+}
+
+.column-editor-container .column-editor-content h1:first-child,
+.column-editor-container .column-editor-content h2:first-child,
+.column-editor-container .column-editor-content h3:first-child {
+  margin-top: 0;
+}
+
+.column-editor-container .column-editor-content ul,
+.column-editor-container .column-editor-content ol {
+  padding-left: 20px;
+  margin: 8px 0;
+}
+
+.column-editor-container .column-editor-content li {
+  margin: 4px 0;
+}
+
+.column-editor-container .column-editor-content pre {
+  background-color: #f5f6f7;
+  border-radius: 4px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 8px 0;
+}
+
+.column-editor-container .column-editor-content code {
+  background-color: #f5f6f7;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: 'SF Mono', Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+.column-editor-container .column-editor-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.column-editor-container .column-editor-content blockquote {
+  border-left: 3px solid #dee0e3;
+  padding-left: 16px;
+  margin: 8px 0;
+  color: #646a73;
+}
+
+.column-editor-container .column-editor-content hr {
+  border: none;
+  border-top: 1px solid #dee0e3;
+  margin: 16px 0;
+}
+
+.column-editor-container .column-editor-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.column-editor-container .column-editor-content a {
+  color: #3370ff;
+  text-decoration: none;
+}
+
+.column-editor-container .column-editor-content a:hover {
+  text-decoration: underline;
+}
+
+/* 防止内容溢出 */
+.column-editor-container .column-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .column-editor-container .grid-block {
+    flex-direction: column;
+  }
+
+  .column-editor-container .column {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .column-editor-container .column-gap {
+    display: none;
+  }
+
+  .column-editor-container .remove-column-btn {
+    display: none;
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .column-editor-container .grid-block {
+    background: #ffffff;
+  }
+
+  .column-editor-container .column {
+    background-color: #ffffff;
+  }
+
+  .column-editor-container .column:hover {
+    background-color: #f7f7f7 !important;
+  }
+
+  .column-editor-container .column-content {
+    color: #e5e5e5;
+  }
+
+  .column-editor-container .column-content:focus {
+    outline: none;
+  }
+
+  .column-editor-container .grid-column-percent {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+
+  .column-editor-container .toolbar-btn {
+    background: #2a2a2a;
+    border: none;
+    color: #e5e5e5;
+  }
+
+  .column-editor-container .toolbar-btn:hover:not(:disabled) {
+    background: #333;
+  }
+
+  .column-editor-container .remove-column-btn {
+    background: rgba(42, 42, 42, 0.9);
+    border: none;
+    color: #999;
+  }
+
+  .column-editor-container .remove-column-btn:hover {
+    color: #ff6b6b;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .column-editor-container .grid-column-percent {
+    display: none !important;
+  }
+
+  .column-editor-container .column-gap {
+    display: none;
+  }
+
+  .column-editor-container .remove-column-btn {
+    display: none !important;
+  }
+
+  .column-editor-container .toolbar {
+    display: none;
+  }
+
+  .column-editor-container .grid-block {
+    box-shadow: none;
+  }
+}

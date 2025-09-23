@@ -1,23 +1,60 @@
 'use client'
 
 import React, { useRef, useState, useEffect } from 'react'
-import { Editor } from '@tiptap/core'
-import '../styles/feishu-columns.css'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
+import { common, createLowlight } from 'lowlight'
+import '../styles/column-editor.css'
 
-interface FeishuColumnBlockProps {
-  editor?: Editor  // Made optional for future use
+const lowlight = createLowlight(common)
+
+interface Column {
+  width: number
+  content: string
 }
 
-export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlockProps) {
-  const [columns, setColumns] = useState<number[]>([33.33, 33.34, 33.33])
+// 单个列内容编辑器组件
+function ColumnContentEditor({ initialContent, index }: { initialContent: string; index: number }) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Image,
+      Link.configure({
+        openOnClick: false,
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
+      }),
+    ],
+    content: initialContent || `<p>列 ${index + 1}</p>`,
+    editorProps: {
+      attributes: {
+        class: 'column-editor-content focus:outline-none',
+      },
+    },
+    immediatelyRender: false,
+  })
+
+  return <EditorContent editor={editor} />
+}
+
+export default function ColumnEditor() {
+  const [columns, setColumns] = useState<Column[]>([
+    { width: 33.33, content: '<p>列 1</p>' },
+    { width: 33.34, content: '<p>列 2</p>' },
+    { width: 33.33, content: '<p>列 3</p>' },
+  ])
   const [resizingIndex, setResizingIndex] = useState<number | null>(null)
   const [hoveredGap, setHoveredGap] = useState<number | null>(null)
   const [hoveredColumn, setHoveredColumn] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const startXRef = useRef<number>(0)
-  const startWidthsRef = useRef<number[]>([])
+  const startWidthsRef = useRef<Column[]>([])
 
-  // 处理列间拖拽
+  // 处理列间拖拽调整宽度
   const handleMouseDown = (index: number, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -34,15 +71,15 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
       const deltaX = e.clientX - startXRef.current
       const deltaPercent = (deltaX / containerWidth) * 100
 
-      const newWidths = [...startWidthsRef.current]
-      const leftWidth = newWidths[resizingIndex] + deltaPercent
-      const rightWidth = newWidths[resizingIndex + 1] - deltaPercent
+      const newColumns = [...startWidthsRef.current]
+      const leftWidth = newColumns[resizingIndex].width + deltaPercent
+      const rightWidth = newColumns[resizingIndex + 1].width - deltaPercent
 
       // 限制最小宽度为10%
       if (leftWidth >= 10 && rightWidth >= 10 && leftWidth <= 90 && rightWidth <= 90) {
-        newWidths[resizingIndex] = leftWidth
-        newWidths[resizingIndex + 1] = rightWidth
-        setColumns(newWidths)
+        newColumns[resizingIndex] = { ...newColumns[resizingIndex], width: leftWidth }
+        newColumns[resizingIndex + 1] = { ...newColumns[resizingIndex + 1], width: rightWidth }
+        setColumns(newColumns)
       }
     }
 
@@ -67,12 +104,15 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
   // 添加新列
   const addColumn = (afterIndex: number) => {
     const newColumns = [...columns]
-    const totalWidth = newColumns[afterIndex] + newColumns[afterIndex + 1]
+    const totalWidth = newColumns[afterIndex].width + newColumns[afterIndex + 1].width
     const newWidth = totalWidth / 3
 
-    newColumns[afterIndex] = newWidth
-    newColumns[afterIndex + 1] = newWidth
-    newColumns.splice(afterIndex + 1, 0, newWidth)
+    newColumns[afterIndex] = { ...newColumns[afterIndex], width: newWidth }
+    newColumns[afterIndex + 1] = { ...newColumns[afterIndex + 1], width: newWidth }
+    newColumns.splice(afterIndex + 1, 0, {
+      width: newWidth,
+      content: `<p>列 ${newColumns.length + 1}</p>`
+    })
 
     setColumns(newColumns)
   }
@@ -82,17 +122,25 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
     if (columns.length <= 2) return
 
     const newColumns = [...columns]
-    const removedWidth = newColumns[index]
     newColumns.splice(index, 1)
 
     // 重新分配宽度
-    const totalWidth = newColumns.reduce((sum, w) => sum + w, 0)
-    const scale = 100 / totalWidth
-    setColumns(newColumns.map(w => w * scale))
+    const totalWidth = 100
+    const newWidth = totalWidth / newColumns.length
+    setColumns(newColumns.map(col => ({ ...col, width: newWidth })))
+  }
+
+  // 添加新列（底部按钮）
+  const addNewColumn = () => {
+    const newCount = columns.length + 1
+    setColumns(Array(newCount).fill(null).map((_, i) => ({
+      width: 100 / newCount,
+      content: `<p>列 ${i + 1}</p>`
+    })))
   }
 
   return (
-    <div className="feishu-column-block">
+    <div className="column-editor-container">
       {/* 列容器 */}
       <div
         ref={containerRef}
@@ -102,10 +150,9 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
           position: 'relative',
           width: '100%',
           minHeight: '120px',
-          backgroundColor: '#ffffff',
         }}
       >
-        {columns.map((width, index) => (
+        {columns.map((column, index) => (
           <React.Fragment key={index}>
             {/* 列内容 */}
             <div
@@ -113,27 +160,14 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
               onMouseEnter={() => setHoveredColumn(index)}
               onMouseLeave={() => setHoveredColumn(null)}
               style={{
-                width: `${width}%`,
-                flex: `0 0 ${width}%`,
+                width: `${column.width}%`,
+                flex: `0 0 ${column.width}%`,
                 position: 'relative',
-                backgroundColor: hoveredColumn === index ? '#f7f7f7' : '#ffffff',
-                transition: 'background-color 0.2s',
-                border: 'none',
-                borderRadius: '0',
               }}
             >
-              {/* 可编辑内容区 */}
-              <div
-                className="column-content"
-                contentEditable
-                suppressContentEditableWarning
-                style={{
-                  padding: '16px',
-                  minHeight: '100px',
-                  outline: 'none',
-                }}
-              >
-                <p style={{ margin: 0, color: '#1f2329', fontSize: '14px', lineHeight: '22px' }}>列 {index + 1}</p>
+              {/* TipTap 编辑器内容区 */}
+              <div className="column-content" style={{ padding: '16px', minHeight: '100px' }}>
+                <ColumnContentEditor initialContent={column.content} index={index} />
               </div>
 
               {/* 百分比标签 */}
@@ -155,7 +189,7 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
                     zIndex: 10,
                   }}
                 >
-                  {Math.round(width)}%
+                  {Math.round(column.width)}%
                 </span>
               )}
 
@@ -182,14 +216,6 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
                     zIndex: 20,
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#fff';
-                    e.currentTarget.style.color = '#ff4d4f';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                    e.currentTarget.style.color = '#646a73';
-                  }}
                 >
                   ×
                 </button>
@@ -204,7 +230,7 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
                 onMouseLeave={() => setHoveredGap(null)}
                 style={{
                   position: 'absolute',
-                  left: `${columns.slice(0, index + 1).reduce((sum, w) => sum + w, 0)}%`,
+                  left: `${columns.slice(0, index + 1).reduce((sum, col) => sum + col.width, 0)}%`,
                   top: 0,
                   bottom: 0,
                   width: '20px',
@@ -237,13 +263,6 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
                       justifyContent: 'center',
                       zIndex: 20,
                       boxShadow: '0 2px 8px rgba(51, 112, 255, 0.3)',
-                      transition: 'transform 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
                     }}
                   >
                     +
@@ -270,12 +289,9 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
       </div>
 
       {/* 底部工具栏 */}
-      <div className="toolbar" style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-start' }}>
+      <div className="toolbar" style={{ marginTop: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
         <button
-          onClick={() => {
-            const newCount = columns.length + 1
-            setColumns(Array(newCount).fill(100 / newCount))
-          }}
+          onClick={addNewColumn}
           disabled={columns.length >= 6}
           className="toolbar-btn"
           style={{
@@ -287,17 +303,6 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
             cursor: columns.length >= 6 ? 'not-allowed' : 'pointer',
             fontSize: '13px',
             fontWeight: '500',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            if (columns.length < 6) {
-              e.currentTarget.style.backgroundColor = '#f5f6f7';
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (columns.length < 6) {
-              e.currentTarget.style.backgroundColor = '#fff';
-            }
           }}
         >
           + 添加列
@@ -305,8 +310,6 @@ export default function FeishuColumnBlock({ editor: _editor }: FeishuColumnBlock
         <span style={{
           fontSize: '12px',
           color: '#8f959e',
-          display: 'flex',
-          alignItems: 'center',
         }}>
           {columns.length} 列 · 拖动分隔线调整宽度
         </span>
