@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书画板组件复刻</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'feishu-text-primary': 'rgb(31, 35, 41)',
+                        'feishu-text-secondary': 'rgb(43, 47, 54)',
+                        'feishu-text-caption': 'rgb(100, 106, 115)',
+                        'feishu-text-disabled': 'rgb(187, 191, 196)',
+                        'feishu-border': 'rgb(222, 224, 227)',
+                        'feishu-bg': 'rgb(255, 255, 255)',
+                    },
+                    boxShadow: {
+                        'feishu': 'rgba(31, 35, 41, 0.04) 0px 8px 24px 8px, rgba(31, 35, 41, 0.04) 0px 6px 12px 0px, rgba(31, 35, 41, 0.06) 0px 4px 8px -8px',
+                    },
+                    fontFamily: {
+                        'feishu': ['LarkHackSafariFont', 'LarkEmojiFont', 'LarkChineseQuote', '-apple-system', 'system-ui', 'Helvetica Neue', 'Tahoma', 'PingFang SC', 'Microsoft Yahei', 'Arial', 'Hiragino Sans GB', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
+                    },
+                    transitionTimingFunction: {
+                        'feishu': 'cubic-bezier(0.34, 0.69, 0.1, 1)',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定义样式补充 */
+        .whiteboard-canvas {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        /* 过渡动画 */
+        .transition-feishu {
+            transition: transform 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+        }
+
+        /* 按钮悬停效果 */
+        .btn-hover-effect {
+            transition: color 0.1s ease-in, background-color 0.1s ease-in, border-color 0.1s ease-in;
+        }
+
+        /* 搜索框动画 */
+        .search-box-animation {
+            transition: opacity 0.1s ease-out, margin-top 0.1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-[960px] mx-auto">
+        <!-- 主容器 -->
+        <div class="relative w-full" style="max-width: 957px; height: 467px;">
+            <!-- 白板层 -->
+            <div class="absolute inset-0 border border-feishu-border rounded-lg overflow-hidden bg-feishu-bg">
+                <!-- 白板根容器 -->
+                <div class="w-full h-full relative">
+                    <!-- 白板视图容器 -->
+                    <div class="w-full h-full bg-feishu-bg overflow-hidden relative">
+
+                        <!-- 顶部浮层 -->
+                        <div class="absolute inset-0 z-[999] pointer-events-none"></div>
+
+                        <!-- 画布容器 -->
+                        <div class="relative w-full h-full">
+                            <!-- 内容编辑区域 -->
+                            <div class="relative w-full h-full">
+                                <!-- 文本输入区（隐藏） -->
+                                <textarea
+                                    class="absolute top-0 left-0 w-px h-4 opacity-0 pointer-events-none resize-none border-none p-0"
+                                    style="transform: matrix(0, 0, 0, 0, 0, 0);"
+                                    autocomplete="off"
+                                ></textarea>
+
+                                <!-- Canvas 画布 -->
+                                <div class="block w-full h-full cursor-default">
+                                    <canvas
+                                        class="absolute top-0 left-0 w-full h-full select-none whiteboard-canvas"
+                                        width="955"
+                                        height="465"
+                                    ></canvas>
+                                </div>
+
+                                <!-- 评论层叠覆盖容器 -->
+                                <div class="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+                                    <div class="relative w-full transform translate-x-0 translate-y-0">
+                                        <div class="w-full pointer-events-auto"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 辅助DOM容器 -->
+                                <div class="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+                                    <div class="relative w-full transform translate-x-0 translate-y-0">
+                                        <div class="w-full">
+                                            <div class="flex"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 提及触发器 -->
+                        <div class="absolute z-[99] top-0 left-0"></div>
+
+                        <!-- 右侧评论面板（默认隐藏） -->
+                        <div
+                            class="absolute top-0 right-0 h-full w-[297px] bg-feishu-bg transition-feishu z-[999] invisible"
+                            style="transform: translateX(100%);"
+                            id="commentPanel"
+                        >
+                            <!-- 评论面板头部 -->
+                            <div class="flex h-11 p-3 items-center">
+                                <div class="flex-1 text-sm font-semibold text-feishu-text-primary">
+                                    评论 (0)
+                                </div>
+                                <div class="flex">
+                                    <!-- 隐藏评论按钮 -->
+                                    <button
+                                        class="flex items-center justify-center w-5 h-5 p-0.5 rounded text-feishu-text-secondary hover:bg-gray-100 cursor-pointer btn-hover-effect"
+                                        onclick="toggleComments()"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                            <path d="M0.618652 3.95991C0.618652 3.13979 1.28349 2.47495 2.10362 2.47495H13.9834C14.8035 2.47495 15.4683 3.13979 15.4683 3.95991V8.68636C15.0696 8.59916 14.6552 8.55406 14.225 8.55406C14.1441 8.55406 14.0636 8.55568 13.9834 8.55893V3.95991H2.10362V12.4985H4.93407C5.38368 12.4985 5.81802 12.6617 6.15639 12.9577L8.04349 14.609L8.32132 14.3658C8.34912 14.4118 8.37724 14.4575 8.40568 14.503L8.40685 14.5049C8.65004 14.8926 8.90553 15.2563 9.17351 15.5934L9.02134 15.7265C8.46147 16.2164 7.6255 16.2164 7.06563 15.7265L5.17853 14.0753C5.11086 14.0161 5.02399 13.9834 4.93407 13.9834H2.10362C1.28349 13.9834 0.618652 13.3186 0.618652 12.4985V3.95991Z" fill="currentColor"/>
+                                            <path d="M11.0134 7.67233C11.4135 7.67233 11.7397 7.98881 11.7553 8.38509C11.0931 8.19262 10.349 8.35741 9.82694 8.8795C9.74003 8.96641 9.66301 9.05948 9.5959 9.1573H5.07355C4.66349 9.1573 4.33107 8.82487 4.33107 8.41481C4.33107 8.00475 4.66349 7.67233 5.07355 7.67233H11.0134Z" fill="currentColor"/>
+                                            <path d="M10.6781 9.63058C10.9359 9.37284 11.3537 9.37284 11.6115 9.63058L18.0519 16.071C18.3097 16.3288 18.3097 16.7466 18.0519 17.0044C17.7942 17.2621 17.3763 17.2621 17.1186 17.0044L10.6781 10.5639C10.4204 10.3062 10.4204 9.88832 10.6781 9.63058Z" fill="currentColor"/>
+                                            <path d="M12.8225 9.90821L13.9678 11.0535C14.1168 11.0234 14.271 11.0075 14.4288 11.0075C15.7046 11.0075 16.7388 12.0417 16.7388 13.3175C16.7388 13.4754 16.7229 13.6295 16.6928 13.7785L17.9881 15.0738C18.3491 14.672 18.6964 14.2057 19.0301 13.6747C19.0543 13.6358 19.0848 13.5865 19.1213 13.5265C19.1599 13.4629 19.1803 13.391 19.1807 13.3179C19.1811 13.2447 19.1615 13.1727 19.1236 13.1087C19.0826 13.0395 19.0486 12.9829 19.0215 12.9391C17.6859 10.7714 16.0868 9.68756 14.2237 9.68756C13.7385 9.68756 13.2714 9.76111 12.8225 9.90821Z" fill="currentColor"/>
+                                            <path d="M10.5863 11.4055C10.19 11.8294 9.81298 12.3318 9.4554 12.9126C9.42462 12.9626 9.38542 13.0286 9.33755 13.1097C9.30004 13.1735 9.28057 13.2452 9.28097 13.318C9.28136 13.3908 9.30163 13.4623 9.33982 13.5257L9.36444 13.5662C9.391 13.6102 9.4179 13.654 9.44514 13.6976C10.804 15.8642 12.3967 16.9474 14.2235 16.9474C14.7794 16.9474 15.3141 16.8471 15.8274 16.6466L14.7815 15.6007C14.6665 15.6183 14.5487 15.6274 14.4288 15.6274C13.1531 15.6274 12.1189 14.5932 12.1189 13.3175C12.1189 13.1976 12.128 13.0798 12.1456 12.9648L10.5863 11.4055Z" fill="currentColor"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 评论列表容器 -->
+                            <div class="h-[calc(100%-44px)] overflow-y-auto">
+                                <div class="min-h-full p-3">
+                                    <div class="relative opacity-100">
+                                        <!-- 评论内容区域（空） -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 画板内评论按钮 -->
+                        <div
+                            class="absolute top-2.5 right-2.5 z-[1] opacity-0 hover:opacity-100 transition-opacity duration-200"
+                            id="addCommentBtn"
+                        >
+                            <button
+                                class="flex items-center justify-center px-1 py-0.5 rounded-md text-feishu-text-primary text-sm hover:bg-gray-50 btn-hover-effect"
+                                onclick="toggleComments()"
+                            >
+                                <div class="flex items-center">
+                                    <svg class="w-3.5 h-3.5 mr-1 text-feishu-text-secondary" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                        <path d="M1.74967 1.16699C1.10534 1.16699 0.583008 1.68933 0.583008 2.33366V9.04199C0.583008 9.68632 1.10534 10.2087 1.74967 10.2087H3.97342C4.04407 10.2087 4.11231 10.2343 4.16548 10.2808L5.64809 11.5781C5.86802 11.7705 6.14218 11.8668 6.41634 11.8668V10.7001L4.93374 9.40282C4.6679 9.17021 4.32666 9.04199 3.97342 9.04199H1.74967V2.33366H11.083V5.43408C11.526 5.61664 11.9187 5.82681 12.2497 6.05907V2.33366C12.2497 1.68933 11.7273 1.16699 11.083 1.16699H1.74967Z" fill="currentColor"/>
+                                        <path d="M4.08301 5.25033C3.76084 5.25033 3.49967 5.51149 3.49967 5.83366C3.49967 6.15582 3.76084 6.41699 4.08301 6.41699H8.74967C9.07184 6.41699 9.33301 6.15582 9.33301 5.83366C9.33301 5.51149 9.07184 5.25033 8.74967 5.25033H4.08301Z" fill="currentColor"/>
+                                        <path d="M11.083 7.58366C11.083 7.26149 10.8218 7.00033 10.4997 7.00033C10.1775 7.00033 9.91634 7.26149 9.91634 7.58366V9.33366H8.16634C7.84418 9.33366 7.58301 9.59483 7.58301 9.91699C7.58301 10.2392 7.84418 10.5003 8.16634 10.5003H9.91634V12.2503C9.91634 12.5725 10.1775 12.8337 10.4997 12.8337C10.8218 12.8337 11.083 12.5725 11.083 12.2503V10.5003H12.833C13.1552 10.5003 13.4163 10.2392 13.4163 9.91699C13.4163 9.59483 13.1552 9.33366 12.833 9.33366H11.083V7.58366Z" fill="currentColor"/>
+                                    </svg>
+                                    <span class="text-feishu-text-primary">画板内评论</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- 搜索容器（默认隐藏） -->
+                        <div
+                            class="absolute top-[68px] right-6 h-0 z-0"
+                            id="searchContainer"
+                        >
+                            <div
+                                class="search-box-animation opacity-0 pointer-events-none -mt-2.5"
+                                id="searchBox"
+                                style="max-width: calc(100vw - 36px);"
+                            >
+                                <div class="border border-feishu-border rounded-lg bg-feishu-bg shadow-feishu">
+                                    <div class="flex items-center py-1 px-4 pr-4">
+                                        <!-- 搜索输入区 -->
+                                        <div class="flex items-center flex-1 px-3 py-1.5">
+                                            <span class="mr-2 text-feishu-text-caption">
+                                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                                    <path d="M16.473 17.887A9.46 9.46 0 0 1 10.5 20a9.5 9.5 0 1 1 9.5-9.5 9.46 9.46 0 0 1-2.113 5.973l3.773 3.773a.996.996 0 0 1-.007 1.407.996.996 0 0 1-1.407.007l-3.773-3.773ZM18 10.5a7.5 7.5 0 1 0-15 0 7.5 7.5 0 0 0 15 0Z" fill="currentColor"/>
+                                                </svg>
+                                            </span>
+                                            <textarea
+                                                rows="1"
+                                                placeholder="搜索"
+                                                class="flex-1 resize-none border-none outline-none bg-transparent text-sm text-feishu-text-primary placeholder-feishu-text-caption"
+                                            ></textarea>
+                                        </div>
+
+                                        <!-- 搜索结果计数 -->
+                                        <span class="mr-2 text-xs text-feishu-text-caption">0 个结果</span>
+
+                                        <!-- 切换按钮（禁用状态） -->
+                                        <button
+                                            class="flex items-center justify-center w-6 h-6 p-1 rounded-md mr-2 text-feishu-text-disabled cursor-not-allowed"
+                                            disabled
+                                        >
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                                <path d="M3 11a9 9 0 0 0 9 9l1.43 1.908c-.467.06-.945.092-1.43.092-6.075 0-11-4.925-11-11S5.925 0 12 0s11 4.925 11 11a11 11 0 0 1-.448 3.117l-1.73-1.33A9 9 0 1 0 3 11Z" fill="currentColor"/>
+                                                <path d="M13.898 13.313 14.433 15h2.524L13.392 4.727h-2.774L6.703 16H9.07l.867-2.688h3.961ZM12 7.07l1.398 4.422h-2.953L11.86 7.07H12Zm7.197 9.431v-1.5c0-.194.163-.351.364-.351.077 0 .153.024.215.068l3.277 3.148a.344.344 0 0 1 .077.492.368.368 0 0 1-.293.143h-7.552c-.285 0-.938-.5-.938-1s.536-1 .938-1h3.912ZM18.35 22v1.5a.358.358 0 0 1-.363.352.373.373 0 0 1-.216-.069l-3.276-3.148a.344.344 0 0 1-.077-.492.368.368 0 0 1 .293-.143h7.551c.285 0 .939.5.939 1s-.537 1-.939 1h-3.911Z" fill="currentColor"/>
+                                            </svg>
+                                        </button>
+
+                                        <!-- 关闭按钮 -->
+                                        <button
+                                            class="flex items-center justify-center w-6 h-6 p-1 rounded-md text-feishu-text-caption hover:bg-gray-100 hover:text-feishu-text-primary btn-hover-effect"
+                                            onclick="toggleSearch()"
+                                        >
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                                <path d="M20.207 20.207a.99.99 0 0 0 .003-1.403L13.406 12l6.804-6.804a.99.99 0 0 0-.003-1.403.99.99 0 0 0-1.403-.003L12 10.594 5.196 3.79a.99.99 0 0 0-1.403.003.99.99 0 0 0-.003 1.403L10.594 12 3.79 18.804a.99.99 0 0 0 .003 1.403.99.99 0 0 0 1.403.003L12 13.406l6.804 6.804a.99.99 0 0 0 1.403-.003Z" fill="currentColor"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 控制按钮（演示用） -->
+        <div class="mt-6 flex gap-4">
+            <button
+                onclick="toggleComments()"
+                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+                切换评论面板
+            </button>
+            <button
+                onclick="toggleSearch()"
+                class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            >
+                切换搜索框
+            </button>
+            <button
+                onclick="toggleAddCommentBtn()"
+                class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+            >
+                显示/隐藏画板内评论按钮
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 切换评论面板
+        function toggleComments() {
+            const panel = document.getElementById('commentPanel');
+            if (panel.classList.contains('invisible')) {
+                panel.classList.remove('invisible');
+                panel.style.transform = 'translateX(0)';
+            } else {
+                panel.classList.add('invisible');
+                panel.style.transform = 'translateX(100%)';
+            }
+        }
+
+        // 切换搜索框
+        function toggleSearch() {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox.classList.contains('opacity-0')) {
+                searchBox.classList.remove('opacity-0', 'pointer-events-none', '-mt-2.5');
+                searchBox.classList.add('opacity-100', 'mt-0');
+            } else {
+                searchBox.classList.add('opacity-0', 'pointer-events-none', '-mt-2.5');
+                searchBox.classList.remove('opacity-100', 'mt-0');
+            }
+        }
+
+        // 切换画板内评论按钮
+        function toggleAddCommentBtn() {
+            const btn = document.getElementById('addCommentBtn');
+            if (btn.classList.contains('opacity-0')) {
+                btn.classList.remove('opacity-0');
+                btn.classList.add('opacity-100');
+            } else {
+                btn.classList.add('opacity-0');
+                btn.classList.remove('opacity-100');
+            }
+        }
+
+        // 初始化Canvas（模拟画板背景）
+        function initCanvas() {
+            const canvas = document.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // 绘制网格背景（可选）
+            ctx.strokeStyle = '#f5f5f5';
+            ctx.lineWidth = 1;
+
+            // 绘制垂直线
+            for (let x = 0; x < canvas.width; x += 20) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // 绘制水平线
+            for (let y = 0; y < canvas.height; y += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', initCanvas);
+    </script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书侧边栏目录 - 精准复刻版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fs-text': '#1f2329',
+                        'fs-text-secondary': '#646a73',
+                        'fs-text-tertiary': '#8f959e',
+                        'fs-primary': '#1456f0',
+                        'fs-bg': '#f5f6f7',
+                        'fs-white': '#ffffff',
+                        'fs-border': 'rgba(31, 35, 41, 0.15)',
+                        'fs-blue': '#336df4',
+                        'fs-hover': 'rgba(31, 35, 41, 0.04)',
+                        'fs-active': 'rgba(20, 86, 240, 0.08)'
+                    },
+                    fontSize: {
+                        'fs-xs': '12px',
+                        'fs-sm': '14px',
+                        'fs-base': '16px',
+                    },
+                    spacing: {
+                        '35': '35px'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定义滚动条 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c6cc;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #8f959e;
+        }
+
+        /* 省略号文本 */
+        .ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 展开箭头动画 */
+        .expand-arrow {
+            transition: transform 0.3s;
+            transform-origin: center;
+        }
+        .expand-arrow.expanded {
+            transform: rotate(90deg);
+        }
+
+        /* 树形项hover效果 */
+        .tree-item {
+            border-radius: 6px;
+            transition: background-color 0.15s;
+        }
+        .tree-item:hover {
+            background: rgba(31, 35, 41, 0.04);
+        }
+        .tree-item.active {
+            background: rgba(20, 86, 240, 0.08);
+        }
+
+        /* 自定义字体 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft Yahei", Arial, sans-serif;
+        }
+
+        /* 拖动条样式 */
+        .resize-handle {
+            cursor: ew-resize;
+            position: absolute;
+            right: -4px;
+            width: 11px;
+            height: 100%;
+            z-index: 90;
+        }
+        .resize-handle:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- 侧边栏容器 -->
+        <div class="relative w-[300px] bg-fs-bg flex flex-col border-r border-fs-border">
+
+            <!-- 顶部导航栏 -->
+            <div class="flex items-center justify-between px-5 h-16 shrink-0">
+                <!-- 左侧按钮组 -->
+                <div class="flex items-center">
+                    <!-- 折叠按钮 -->
+                    <button class="w-6 h-6 flex items-center justify-center text-fs-text-secondary hover:bg-fs-hover rounded-md transition-colors mr-1.5">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 4a1 1 0 0 0-1-1H3a1 1 0 0 0 0 2h18a1 1 0 0 0 1-1Zm-11.111 7c.614 0 1.111.448 1.111 1s-.498 1-1.111 1H3.11C2.497 13 2 12.552 2 12s.497-1 1.111-1h7.778ZM12 20c0-.552-.498-1-1.111-1H3.11C2.497 19 2 19.448 2 20s.497 1 1.111 1h7.778c.614 0 1.111-.448 1.111-1Zm3.41-3.136a1.117 1.117 0 0 1 0-1.729l4.951-3.917c.675-.534 1.639-.026 1.639.865v7.834c0 .89-.964 1.4-1.639.865l-4.951-3.918Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <!-- 主页按钮 -->
+                    <button class="w-6 h-6 flex items-center justify-center text-fs-text-secondary hover:bg-fs-hover rounded-md transition-colors mr-1.5">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="m20 10-8-5.939L4 10v10h5v-3.8a2.2 2.2 0 0 1 2.2-2.2h1.6a2.2 2.2 0 0 1 2.2 2.2V20h5V10Zm-9 11a1 1 0 0 1-1 1H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .75-1.562l8-5.938a2 2 0 0 1 2.5 0l8 5.938A2 2 0 0 1 22 10v10a2 2 0 0 1-2 2h-6a1 1 0 0 1-1-1v-4.8a.2.2 0 0 0-.2-.2h-1.6a.2.2 0 0 0-.2.2V21Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                </div>
+                <!-- 标题 -->
+                <h1 class="flex-1 text-fs-sm font-medium text-fs-text ellipsis cursor-pointer">飞书云文档</h1>
+            </div>
+
+            <!-- 空间信息区 -->
+            <div class="flex items-center mx-2.5 mb-3 p-2 rounded-md hover:bg-fs-hover cursor-pointer transition-colors">
+                <div class="w-8 h-8 min-w-[32px] flex items-center justify-center bg-fs-white border border-fs-border rounded-lg mr-2.5">
+                    <span class="text-base">🤨</span>
+                </div>
+                <div class="flex-1 flex flex-col justify-center">
+                    <span class="text-fs-sm font-medium text-fs-text">一</span>
+                </div>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="px-2 pb-1.5">
+                <div class="flex items-center h-8 px-2 bg-fs-white rounded-md hover:bg-gray-50 transition-colors cursor-pointer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary mr-1.5">
+                        <path d="M16.473 17.887A9.46 9.46 0 0 1 10.5 20a9.5 9.5 0 1 1 9.5-9.5 9.46 9.46 0 0 1-2.113 5.973l3.773 3.773a.996.996 0 0 1-.007 1.407.996.996 0 0 1-1.407.007l-3.773-3.773ZM18 10.5a7.5 7.5 0 1 0-15 0 7.5 7.5 0 0 0 15 0Z" fill="currentColor"/>
+                    </svg>
+                    <span class="text-fs-sm text-fs-text-secondary">搜索</span>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="flex-1 flex flex-col overflow-hidden mt-1.5">
+                <!-- 目录标题栏 -->
+                <div class="sticky top-0 z-10 bg-fs-bg px-3 pb-1">
+                    <div class="flex items-center justify-between h-9">
+                        <div class="flex items-center hover:bg-fs-hover rounded px-1 cursor-pointer">
+                            <span class="text-fs-xs font-medium text-fs-text-secondary mr-1">目录</span>
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary expand-arrow expanded opacity-0 hover:opacity-100 transition-opacity">
+                                <path d="m7.586 20.486.707.707a1 1 0 0 0 1.414 0l7.778-7.778a2 2 0 0 0 0-2.829L9.707 2.808a1 1 0 0 0-1.414 0l-.707.707a1 1 0 0 0 0 1.414l7.07 7.072-7.07 7.07a1 1 0 0 0 0 1.415Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="flex items-center">
+                            <button class="w-5 h-5 flex items-center justify-center text-fs-text-secondary hover:bg-fs-hover rounded transition-colors mr-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <button class="w-5 h-5 flex items-center justify-center text-fs-text-secondary hover:bg-fs-hover rounded transition-colors ml-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM3 6a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm2 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 4a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm9-13a1 1 0 1 0 0 2h10a1 1 0 1 0 0-2H12Zm0 12a1 1 0 1 0 0 2h10a1 1 0 1 0 0-2H12Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 树形目录内容 -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar pl-2 pr-2">
+                    <div class="pb-2">
+                        <!-- 读书笔记 (展开的一级目录) -->
+                        <div class="tree-item active flex items-center h-35 px-0 cursor-pointer" data-level="1" data-expanded="true">
+                            <button class="w-5 h-5 flex items-center justify-center ml-1 shrink-0">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" class="text-fs-text-tertiary expand-arrow expanded">
+                                    <path d="M17.933 11.2a1 1 0 0 1 0 1.6l-9.333 7A1 1 0 0 1 7 19V5a1 1 0 0 1 1.6-.8l9.333 7Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-blue">
+                                    <path d="M2.237 2.5a1 1 0 0 1 1-1h12.865a5.24 5.24 0 0 1 3.631 1.447 4.848 4.848 0 0 1 1.504 3.494V21.5a1 1 0 0 1-1 1H7.372a5.24 5.24 0 0 1-3.63-1.447 4.849 4.849 0 0 1-1.505-3.494V2.5Z" fill="#336DF4"/>
+                                    <path d="M6.737 8.7a.7.7 0 0 1 .7-.7h8.6a.7.7 0 1 1 0 1.4h-8.6a.7.7 0 0 1-.7-.7Zm0 3.4a.7.7 0 0 1 .7-.7h8.6a.7.7 0 1 1 0 1.4h-8.6a.7.7 0 0 1-.7-.7Zm0 3.4a.7.7 0 0 1 .7-.7h4.6a.7.7 0 1 1 0 1.4h-4.6a.7.7 0 0 1-.7-.7Z" fill="#fff"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm font-medium text-fs-primary pl-1.5 leading-35">读书笔记</span>
+                        </div>
+
+                        <!-- 二级文档项 -->
+                        <div class="tree-children" data-parent="读书笔记">
+                            <div class="tree-item flex items-center h-35 pl-5 cursor-pointer" data-level="2">
+                                <div class="w-5 h-5 flex items-center justify-center shrink-0"></div>
+                                <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                        <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                        <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                                <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">富爸爸创业</span>
+                            </div>
+
+                            <div class="tree-item flex items-center h-35 pl-5 cursor-pointer" data-level="2">
+                                <div class="w-5 h-5 flex items-center justify-center shrink-0"></div>
+                                <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                        <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                        <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 3 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                                <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">富爸爸穷爸爸</span>
+                            </div>
+
+                            <div class="tree-item flex items-center h-35 pl-5 cursor-pointer" data-level="2">
+                                <div class="w-5 h-5 flex items-center justify-center shrink-0"></div>
+                                <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                        <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                        <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                                <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">游资情绪交易系统</span>
+                            </div>
+                        </div>
+
+                        <!-- 其他一级目录项 -->
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="false">
+                            <div class="w-5 h-5 flex items-center justify-center ml-1 shrink-0"></div>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">悟创</span>
+                        </div>
+
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="false">
+                            <div class="w-5 h-5 flex items-center justify-center ml-1 shrink-0"></div>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">事件&逻辑</span>
+                        </div>
+
+                        <!-- 可折叠的目录项 -->
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="true" data-expanded="false">
+                            <button class="w-5 h-5 flex items-center justify-center ml-1 shrink-0">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" class="text-fs-text-tertiary expand-arrow">
+                                    <path d="M17.933 11.2a1 1 0 0 1 0 1.6l-9.333 7A1 1 0 0 1 7 19V5a1 1 0 0 1 1.6-.8l9.333 7Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">coding</span>
+                        </div>
+
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="true" data-expanded="false">
+                            <button class="w-5 h-5 flex items-center justify-center ml-1 shrink-0">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" class="text-fs-text-tertiary expand-arrow">
+                                    <path d="M17.933 11.2a1 1 0 0 1 0 1.6l-9.333 7A1 1 0 0 1 7 19V5a1 1 0 0 1 1.6-.8l9.333 7Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">chaos</span>
+                        </div>
+
+                        <!-- 更多文档项... -->
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="false">
+                            <div class="w-5 h-5 flex items-center justify-center ml-1 shrink-0"></div>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">RAG</span>
+                        </div>
+
+                        <!-- 其他项目继续... -->
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="true" data-expanded="false">
+                            <button class="w-5 h-5 flex items-center justify-center ml-1 shrink-0">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" class="text-fs-text-tertiary expand-arrow">
+                                    <path d="M17.933 11.2a1 1 0 0 1 0 1.6l-9.333 7A1 1 0 0 1 7 19V5a1 1 0 0 1 1.6-.8l9.333 7Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">英语40篇</span>
+                        </div>
+
+                        <div class="tree-item flex items-center h-35 px-0 cursor-pointer" data-level="1" data-has-children="false">
+                            <div class="w-5 h-5 flex items-center justify-center ml-1 shrink-0"></div>
+                            <div class="w-5 h-5 flex items-center justify-center shrink-0">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-fs-text-secondary">
+                                    <path d="M4 3h12.595c.93 0 1.806.355 2.439.96A3.07 3.07 0 0 1 20 6.176V21H7.405a3.53 3.53 0 0 1-2.439-.96A3.068 3.068 0 0 1 4 17.823V3ZM3 1a1 1 0 0 0-1 1v15.823c0 1.373.57 2.69 1.583 3.66A5.529 5.529 0 0 0 7.405 23H21a1 1 0 0 0 1-1V6.176a5.07 5.07 0 0 0-1.583-3.66A5.53 5.53 0 0 0 16.595 1H3Z" fill="currentColor"/>
+                                    <path d="M6.75 8a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h8.5a1 1 0 1 1 0 2h-8.5a1 1 0 0 1-1-1Zm0 4a1 1 0 0 1 1-1h4.5a1 1 0 1 1 0 2h-4.5a1 1 0 0 1-1-1Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <span class="flex-1 text-fs-sm text-fs-text pl-1.5 leading-35 ellipsis">LLM 理解</span>
+                        </div>
+
+                        <!-- 更多项目... -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部工具栏 -->
+            <div class="flex items-center justify-center h-10 border-t border-fs-border shrink-0">
+                <div class="flex flex-1">
+                    <!-- 设置 -->
+                    <div class="flex-1 flex justify-center items-center p-1">
+                        <button class="w-5 h-5 flex items-center justify-center text-fs-text-secondary hover:text-fs-text transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="m4.328 19.734-.31-.34a10.91 10.91 0 0 1-2.386-4.146l-.135-.436L3.545 12 1.497 9.188l.135-.436a10.91 10.91 0 0 1 2.385-4.147l.311-.339 3.442.377 1.398-3.187.448-.101A10.843 10.843 0 0 1 12 1.09c.809 0 1.607.089 2.384.264l.448.1 1.398 3.188 3.442-.377.31.34a10.91 10.91 0 0 1 2.386 4.146l.135.436L20.455 12l2.048 2.812-.135.436a10.91 10.91 0 0 1-2.385 4.147l-.311.339-3.442-.377-1.398 3.187-.448.101a10.848 10.848 0 0 1-4.768 0l-.448-.1-1.398-3.188-3.442.377Zm3.485-2.21a1.488 1.488 0 0 1 1.525.881l1.12 2.554a9.05 9.05 0 0 0 3.084 0l1.12-2.554a1.488 1.488 0 0 1 1.524-.881l2.755.3c.665-.8 1.19-1.71 1.547-2.69l-1.644-2.258a1.488 1.488 0 0 1 0-1.752l1.644-2.258a9.091 9.091 0 0 0-1.547-2.69l-2.755.3a1.488 1.488 0 0 1-1.524-.881l-1.12-2.554a9.053 9.053 0 0 0-3.084 0l-1.12 2.554a1.488 1.488 0 0 1-1.525.881l-2.754-.3a9.09 9.09 0 0 0-1.548 2.69l1.645 2.258c.38.522.38 1.23 0 1.752l-1.644 2.258c.358.98.882 1.89 1.547 2.69l2.754-.3ZM12 16.545c-2.502 0-4.528-2.036-4.528-4.545 0-2.51 2.026-4.545 4.528-4.545S16.528 9.49 16.528 12 14.502 16.545 12 16.545Zm0-1.818c1.496 0 2.71-1.22 2.71-2.727A2.719 2.719 0 0 0 12 9.273 2.719 2.719 0 0 0 9.29 12 2.719 2.719 0 0 0 12 14.727Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-4 bg-fs-border self-center"></div>
+
+                    <!-- 分享 -->
+                    <div class="flex-1 flex justify-center items-center p-1">
+                        <button class="w-5 h-5 flex items-center justify-center text-fs-text-secondary hover:text-fs-text transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M17.828 8c-2.984.007-5.348.553-7.332 1.634a10.628 10.628 0 0 0-4.392 4.471c-.163.311-.314.631-.452.96-.06.146-.138.348-.232.606a.5.5 0 0 1-.47.329H3.89a.5.5 0 0 1-.475-.655l.053-.16a14.46 14.46 0 0 1 .874-2.023 12.613 12.613 0 0 1 5.21-5.292c2.232-1.213 4.897-1.862 8.277-1.87l-2.537-2.537a.998.998 0 0 1 .004-1.41.998.998 0 0 1 1.41-.004l4.598 4.597a.5.5 0 0 1 0 .708l-4.601 4.601a.993.993 0 0 1-1.402-.012.993.993 0 0 1-.013-1.402l2.541-2.54ZM20 18a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 2 0v1h14v-1a1 1 0 0 1 1-1Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-4 bg-fs-border self-center"></div>
+
+                    <!-- 统计 -->
+                    <div class="flex-1 flex justify-center items-center p-1">
+                        <button class="w-5 h-5 flex items-center justify-center text-fs-text-secondary hover:text-fs-text transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M2 3a1 1 0 0 1 2 0v17h17a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1V3Z" fill="currentColor"/>
+                                <path d="M21.707 6.293a1 1 0 0 1 0 1.414l-5.466 5.466-5-2-4.534 4.534a1 1 0 0 1-1.414-1.414l5.466-5.466 5 2 4.534-4.534a1 1 0 0 1 1.414 0Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="w-px h-4 bg-fs-border self-center"></div>
+
+                    <!-- 回收站 -->
+                    <div class="flex-1 flex justify-center items-center p-1">
+                        <button class="w-5 h-5 flex items-center justify-center text-fs-text-secondary hover:text-fs-text transition-colors">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M10 16a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-4Z" fill="currentColor"/>
+                                <path d="M10 2a2 2 0 0 0-2 2H3a1 1 0 0 0 0 2h1v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6h1a1 1 0 1 0 0-2h-5a2 2 0 0 0-2-2h-4ZM6 20V6h12v14H6Z" fill="currentColor"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧拖动条 -->
+            <div class="resize-handle"></div>
+        </div>
+
+        <!-- 右侧内容区 (演示用) -->
+        <div class="flex-1 bg-white p-8">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">飞书侧边栏目录 - Tailwind CSS复刻版</h1>
+                <p class="text-gray-600 leading-relaxed">
+                    这是飞书文档侧边栏目录的精准复刻版本。使用Tailwind CSS构建，完整还原了原版的样式和交互效果。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 处理树形项目的折叠展开
+            const treeItems = document.querySelectorAll('.tree-item');
+
+            treeItems.forEach(item => {
+                const expandBtn = item.querySelector('.expand-arrow');
+                const hasChildren = item.dataset.hasChildren === 'true';
+                const isExpanded = item.dataset.expanded === 'true';
+
+                if (hasChildren && expandBtn) {
+                    // 点击箭头按钮展开/折叠
+                    expandBtn.closest('button').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const expanded = item.dataset.expanded === 'true';
+                        item.dataset.expanded = !expanded;
+
+                        if (!expanded) {
+                            expandBtn.classList.add('expanded');
+                        } else {
+                            expandBtn.classList.remove('expanded');
+                        }
+
+                        // 这里可以添加显示/隐藏子项的逻辑
+                    });
+                }
+
+                // 点击项目选中
+                item.addEventListener('click', function() {
+                    // 移除其他项的激活状态
+                    treeItems.forEach(i => {
+                        i.classList.remove('active');
+                        const text = i.querySelector('span:last-child');
+                        if (text) {
+                            text.classList.remove('text-fs-primary', 'font-medium');
+                            text.classList.add('text-fs-text');
+                        }
+                    });
+
+                    // 添加当前项的激活状态
+                    this.classList.add('active');
+                    const text = this.querySelector('span:last-child');
+                    if (text) {
+                        text.classList.remove('text-fs-text');
+                        text.classList.add('text-fs-primary', 'font-medium');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

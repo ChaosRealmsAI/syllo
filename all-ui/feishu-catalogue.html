@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书文档目录组件 - Tailwind复刻版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 自定义滚动条样式 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(100, 106, 115, 0.3);
+            border-radius: 3.5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(100, 106, 115, 0.5);
+        }
+
+        /* 折叠箭头动画 */
+        .collapse-arrow {
+            transition: transform 0.2s ease-out;
+        }
+
+        .collapsed .collapse-arrow {
+            transform: rotate(0deg);
+        }
+
+        .expanded .collapse-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* Pin按钮动画 */
+        .pin-btn {
+            transition: transform 0.3s;
+        }
+
+        /* 目录项hover效果 */
+        .catalogue-item:hover {
+            background-color: rgba(100, 106, 115, 0.05);
+        }
+
+        /* 激活项背景 */
+        .catalogue-item.active {
+            background-color: rgba(20, 86, 240, 0.05);
+        }
+
+        /* 目录容器过渡动画 */
+        .catalogue {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .catalogue-collapsed {
+            width: 42px !important;
+        }
+
+        /* 隐藏文字时的动画 */
+        .catalogue-content {
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .catalogue-collapsed .catalogue-content {
+            opacity: 0;
+            transform: translateX(-10px);
+            pointer-events: none;
+            display: none;
+        }
+
+        /* 展开收起按钮 */
+        .toggle-btn {
+            transition: transform 0.3s;
+        }
+
+        .catalogue-collapsed .toggle-btn {
+            transform: rotate(180deg);
+        }
+
+        /* 折叠时隐藏主内容 */
+        .main-content {
+            transition: all 0.3s ease-in-out;
+            overflow: hidden;
+        }
+
+        .catalogue-collapsed .main-content {
+            width: 0;
+            opacity: 0;
+            display: none;
+        }
+
+        /* 折叠时调整顶部栏 */
+        .catalogue-collapsed .toggle-wrapper {
+            margin: 0 auto;
+        }
+
+        /* 工具提示 */
+        .toggle-wrapper {
+            position: relative;
+        }
+
+        .toggle-wrapper::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-left: 8px;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .toggle-wrapper:hover::after {
+            opacity: 1;
+        }
+
+        .catalogue-collapsed .toggle-wrapper::after {
+            content: '展开目录';
+        }
+
+        .catalogue:not(.catalogue-collapsed) .toggle-wrapper::after {
+            content: '收起目录';
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8 font-sans">
+    <!-- 标题说明 -->
+    <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">飞书文档目录组件</h1>
+        <p class="text-gray-600">点击左侧箭头图标可以展开/收起整个目录，点击带箭头的标题可以折叠/展开子项</p>
+    </div>
+
+    <!-- 容器包装，用于居中 -->
+    <div class="flex justify-center">
+    <!-- 主容器 -->
+    <div class="catalogue bg-white shadow-lg rounded-lg relative" style="width: 247.5px; max-width: 247.5px;">
+        <!-- 顶部操作区域 -->
+        <div class="relative h-12 px-2 py-2 flex items-center justify-between border-b border-gray-200">
+            <!-- 左侧展开收起按钮 -->
+            <div class="toggle-wrapper flex justify-center items-center w-7 h-7 bg-white rounded-md cursor-pointer hover:bg-gray-100 transition-all">
+                <svg class="toggle-btn" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 3L10.5 8L5.5 13" stroke="#646A73" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <!-- 标题（折叠时隐藏） -->
+            <span class="catalogue-content text-sm font-medium text-gray-700 flex-1 ml-2">文档目录</span>
+
+            <!-- Pin按钮（折叠时隐藏） -->
+            <div class="pin-wrapper catalogue-content flex justify-center items-center w-7 h-7 bg-white rounded-md cursor-pointer hover:bg-gray-100 transition-all">
+                <!-- 固定图标 -->
+                <svg class="pin-btn" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 9l-1.5 4.5L7 9m-3 0h8l-1-5h-6l-1 5z" stroke="#646A73" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 1v3" stroke="#646A73" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content px-1 pb-4">
+            <!-- 滚动容器 -->
+            <div class="custom-scrollbar overflow-y-auto" style="max-height: 560px;">
+                <!-- 目录列表 -->
+                <div class="space-y-0" style="padding-bottom: 50px;">
+
+                    <!-- 一级标题 - 文档标题（激活状态，有子元素） -->
+                    <li class="catalogue-item active py-1 pr-3 cursor-pointer expanded" data-has-children="true">
+                        <a href="#" class="flex items-center text-[15px] font-medium leading-[22px] text-blue-500 hover:text-blue-600">
+                            <span class="collapse-arrow inline-block w-4 p-1.5">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                    <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                </svg>
+                            </span>
+                            <span>读书笔记</span>
+                        </a>
+                    </li>
+                    <!-- 读书笔记的子元素 -->
+                    <div class="children-container">
+                        <li class="catalogue-item py-1 pr-3 cursor-pointer" style="padding-left: 56px;">
+                            <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                <span class="collapse-arrow inline-block w-4 p-1.5 opacity-0">
+                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                        <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                    </svg>
+                                </span>
+                                <span class="truncate">1121111111121111111121111111121111111121111111121111111121111115</span>
+                            </a>
+                        </li>
+                    </div>
+
+                    <!-- 一级标题（没有子元素） -->
+                    <li class="catalogue-item py-1 pr-3 cursor-pointer">
+                        <a href="#" class="flex items-center text-sm font-medium leading-[22px] text-gray-500 hover:text-gray-700">
+                            <span class="collapse-arrow inline-block w-4 p-1.5 opacity-0">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                    <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                </svg>
+                            </span>
+                            <span>水电费舒服</span>
+                        </a>
+                    </li>
+
+                    <!-- 一级标题（可折叠，有复杂子元素） -->
+                    <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" data-has-children="true">
+                        <a href="#" class="flex items-center text-sm font-medium leading-[22px] text-gray-500 hover:text-gray-700">
+                            <span class="collapse-arrow inline-block w-4 p-1.5">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                    <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                </svg>
+                            </span>
+                            <span>123</span>
+                        </a>
+                    </li>
+                    <!-- 123的子元素组（初始隐藏） -->
+                    <div class="children-container" style="display: none;">
+                        <!-- 四级标题 -->
+                        <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 42px;" data-has-children="true">
+                            <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                <span class="collapse-arrow inline-block w-4 p-1.5">
+                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                        <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                    </svg>
+                                </span>
+                                <span>4</span>
+                            </a>
+                        </li>
+                        <!-- 4的子元素 -->
+                        <div class="children-container" style="display: none;">
+                            <!-- 六级标题 -->
+                            <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 70px;" data-has-children="true">
+                                <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                    <span class="collapse-arrow inline-block w-4 p-1.5">
+                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                            <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                        </svg>
+                                    </span>
+                                    <span>6</span>
+                                </a>
+                            </li>
+                            <!-- 6的子元素 -->
+                            <div class="children-container" style="display: none;">
+                                <!-- 七级标题 -->
+                                <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 84px;" data-has-children="true">
+                                    <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                        <span class="collapse-arrow inline-block w-4 p-1.5">
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                            </svg>
+                                        </span>
+                                        <span>7</span>
+                                    </a>
+                                </li>
+                                <!-- 7的子元素 -->
+                                <div class="children-container" style="display: none;">
+                                    <!-- 八级标题 -->
+                                    <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 98px;" data-has-children="true">
+                                        <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                            <span class="collapse-arrow inline-block w-4 p-1.5">
+                                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                    <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                                </svg>
+                                            </span>
+                                            <span>8</span>
+                                        </a>
+                                    </li>
+                                    <!-- 8的子元素 -->
+                                    <div class="children-container" style="display: none;">
+                                        <!-- 九级标题 -->
+                                        <li class="catalogue-item py-1 pr-3 cursor-pointer" style="padding-left: 112px;">
+                                            <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                                <span class="collapse-arrow inline-block w-4 p-1.5 opacity-0">
+                                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                        <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                                    </svg>
+                                                </span>
+                                                <span>9</span>
+                                            </a>
+                                        </li>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 一级长标题（有子元素） -->
+                    <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" data-has-children="true">
+                        <a href="#" class="flex items-center text-sm font-medium leading-[22px] text-gray-500 hover:text-gray-700">
+                            <span class="collapse-arrow inline-block w-4 p-1.5">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                    <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                </svg>
+                            </span>
+                            <span class="truncate">112111111112111111112111111112111111112111111112111111112111111112111111112111111</span>
+                        </a>
+                    </li>
+                    <!-- 长标题的子元素组 -->
+                    <div class="children-container" style="display: none;">
+                        <!-- 二级长标题 -->
+                        <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 14px;" data-has-children="true">
+                            <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                <span class="collapse-arrow inline-block w-4 p-1.5">
+                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                        <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                    </svg>
+                                </span>
+                                <span class="truncate">2112111111112111111112111111112111111112111111112111111112111111112111111</span>
+                            </a>
+                        </li>
+                        <!-- 二级标题的子元素 -->
+                        <div class="children-container" style="display: none;">
+                            <!-- 三级长标题 -->
+                            <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 28px;" data-has-children="true">
+                                <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                    <span class="collapse-arrow inline-block w-4 p-1.5">
+                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                            <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                        </svg>
+                                    </span>
+                                    <span class="truncate">1121111111121111111121111111121111111121111111121111111121111111121111113</span>
+                                </a>
+                            </li>
+                            <!-- 三级标题的子元素 -->
+                            <div class="children-container" style="display: none;">
+                                <!-- 四级标题 -->
+                                <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 42px;" data-has-children="true">
+                                    <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                        <span class="collapse-arrow inline-block w-4 p-1.5">
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                            </svg>
+                                        </span>
+                                        <span>4</span>
+                                    </a>
+                                </li>
+                                <!-- 四级的子元素 -->
+                                <div class="children-container" style="display: none;">
+                                    <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 56px;" data-has-children="true">
+                                        <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                            <span class="collapse-arrow inline-block w-4 p-1.5">
+                                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                    <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                                </svg>
+                                            </span>
+                                            <span class="truncate">1121111111121111111121111111121111111121111111121111111121111115</span>
+                                        </a>
+                                    </li>
+                                    <!-- 五级的子元素 -->
+                                    <div class="children-container" style="display: none;">
+                                        <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 70px;" data-has-children="true">
+                                            <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                                <span class="collapse-arrow inline-block w-4 p-1.5">
+                                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                        <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                                    </svg>
+                                                </span>
+                                                <span>6</span>
+                                            </a>
+                                        </li>
+                                        <!-- 六级的子元素 -->
+                                        <div class="children-container" style="display: none;">
+                                            <li class="catalogue-item py-1 pr-3 cursor-pointer collapsed" style="padding-left: 84px;" data-has-children="true">
+                                                <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                                    <span class="collapse-arrow inline-block w-4 p-1.5">
+                                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                            <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                                        </svg>
+                                                    </span>
+                                                    <span>7</span>
+                                                </a>
+                                            </li>
+                                            <!-- 七级的子元素 -->
+                                            <div class="children-container" style="display: none;">
+                                                <li class="catalogue-item py-1 pr-3 cursor-pointer" style="padding-left: 98px;">
+                                                    <a href="#" class="flex items-center text-sm leading-[22px] text-gray-500 hover:text-gray-700">
+                                                        <span class="collapse-arrow inline-block w-4 p-1.5 opacity-0">
+                                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                                <path d="M7.76 4.675a.417.417 0 010 .65l-4.305 3.46a.417.417 0 01-.678-.324V1.539c0-.35.405-.544.678-.324l4.306 3.46z" fill="#8F959E"/>
+                                                            </svg>
+                                                        </span>
+                                                        <span>8</span>
+                                                    </a>
+                                                </li>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- JavaScript交互 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 处理折叠/展开
+            const collapsibleItems = document.querySelectorAll('.catalogue-item');
+
+            collapsibleItems.forEach(item => {
+                const arrow = item.querySelector('.collapse-arrow');
+                const hasChildren = item.hasAttribute('data-has-children');
+
+                // 点击事件
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // 移除其他激活状态
+                    collapsibleItems.forEach(other => {
+                        if (other !== this) {
+                            other.classList.remove('active');
+                        }
+                    });
+
+                    // 切换当前激活状态
+                    this.classList.add('active');
+
+                    // 更新文字颜色
+                    const link = this.querySelector('a');
+                    collapsibleItems.forEach(other => {
+                        const otherLink = other.querySelector('a');
+                        otherLink.classList.remove('text-blue-500', 'hover:text-blue-600');
+                        otherLink.classList.add('text-gray-500', 'hover:text-gray-700');
+                    });
+                    link.classList.remove('text-gray-500', 'hover:text-gray-700');
+                    link.classList.add('text-blue-500', 'hover:text-blue-600');
+
+                    // 如果有子元素，处理折叠展开
+                    if (hasChildren && arrow) {
+                        const childrenContainer = this.nextElementSibling;
+
+                        if (this.classList.contains('collapsed')) {
+                            // 展开
+                            this.classList.remove('collapsed');
+                            this.classList.add('expanded');
+                            arrow.style.opacity = '1';
+                            if (childrenContainer && childrenContainer.classList.contains('children-container')) {
+                                childrenContainer.style.display = 'block';
+                            }
+                        } else {
+                            // 折叠
+                            this.classList.add('collapsed');
+                            this.classList.remove('expanded');
+                            arrow.style.opacity = '1';
+                            if (childrenContainer && childrenContainer.classList.contains('children-container')) {
+                                childrenContainer.style.display = 'none';
+                            }
+                        }
+                    }
+                });
+
+                // 初始化：如果有子元素，显示箭头
+                if (hasChildren && arrow) {
+                    arrow.style.opacity = '1';
+
+                    // 如果初始状态是展开的，显示子元素
+                    if (item.classList.contains('expanded')) {
+                        const childrenContainer = item.nextElementSibling;
+                        if (childrenContainer && childrenContainer.classList.contains('children-container')) {
+                            childrenContainer.style.display = 'block';
+                        }
+                    } else if (item.classList.contains('collapsed')) {
+                        const childrenContainer = item.nextElementSibling;
+                        if (childrenContainer && childrenContainer.classList.contains('children-container')) {
+                            childrenContainer.style.display = 'none';
+                        }
+                    }
+                }
+            });
+
+            // 目录展开收起功能
+            const toggleWrapper = document.querySelector('.toggle-wrapper');
+            const catalogueContainer = document.querySelector('.catalogue');
+            let isCollapsed = false;
+
+            if (toggleWrapper) {
+                toggleWrapper.addEventListener('click', function() {
+                    isCollapsed = !isCollapsed;
+                    if (isCollapsed) {
+                        catalogueContainer.classList.add('catalogue-collapsed');
+                    } else {
+                        catalogueContainer.classList.remove('catalogue-collapsed');
+                    }
+                });
+            }
+
+            // Pin按钮交互
+            const pinWrapper = document.querySelector('.pin-wrapper');
+            let isPinned = false;
+
+            if (pinWrapper) {
+                pinWrapper.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    isPinned = !isPinned;
+                    const pinBtn = this.querySelector('.pin-btn');
+                    if (isPinned) {
+                        pinBtn.style.transform = 'rotate(45deg)';
+                        pinBtn.style.color = '#1456F0';
+                    } else {
+                        pinBtn.style.transform = 'rotate(0)';
+                        pinBtn.style.color = '#646A73';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

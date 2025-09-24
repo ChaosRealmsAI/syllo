@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书添加按钮组件复刻</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'feishu-text': 'rgb(31, 35, 41)',
+                    },
+                    fontFamily: {
+                        'feishu': ['LarkHackSafariFont', 'LarkEmojiFont', 'LarkChineseQuote', '-apple-system', 'system-ui', 'Helvetica Neue', 'Tahoma', 'PingFang SC', 'Microsoft Yahei', 'Arial', 'Hiragino Sans GB', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定义CSS变量 */
+        :root {
+            --text-primary: rgb(31, 35, 41);
+        }
+
+        /* 系统字体fallback */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        /* 容器hover效果 */
+        .hover-block-type-icon-container {
+            transition: all 0.2s ease;
+            border: 1px solid rgba(31, 35, 41, 0.15);
+        }
+
+        .hover-block-type-icon-container:hover {
+            background-color: rgba(31, 35, 41, 0.06);
+            border-color: rgba(31, 35, 41, 0.25);
+            cursor: pointer;
+        }
+
+        /* 图标过渡效果 */
+        .add-panel-icon {
+            transition: transform 0.2s ease;
+        }
+
+        /* 活跃状态 */
+        .hover-block-type-icon-container:active {
+            background-color: rgba(31, 35, 41, 0.12);
+            border-color: rgba(31, 35, 41, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <!-- 主标题 -->
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">飞书添加按钮组件复刻</h1>
+        <p class="text-gray-600 mb-8">基于 Tailwind CSS 的一比一复刻版本</p>
+
+        <!-- 组件展示区 -->
+        <div class="bg-white rounded-lg shadow-sm p-8 space-y-8">
+
+            <!-- 默认状态 -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-700">默认状态</h2>
+                <div class="flex items-center gap-4">
+                    <div class="hover-block-type-icon-container inline-flex items-center justify-center p-2 rounded-md">
+                        <span class="add-panel-icon inline-block text-feishu-text">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon="AddOutlined" class="w-4 h-4">
+                                <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                    </div>
+                    <span class="text-sm text-gray-600">悬停查看效果</span>
+                </div>
+            </div>
+
+            <!-- 不同尺寸展示 -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-700">不同尺寸</h2>
+                <div class="flex items-center gap-6">
+                    <!-- 小尺寸 -->
+                    <div class="hover-block-type-icon-container inline-flex items-center justify-center p-1 rounded-md">
+                        <span class="add-panel-icon inline-block text-feishu-text">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <!-- 默认尺寸 -->
+                    <div class="hover-block-type-icon-container inline-flex items-center justify-center p-2 rounded-md">
+                        <span class="add-panel-icon inline-block text-feishu-text">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <!-- 大尺寸 -->
+                    <div class="hover-block-type-icon-container inline-flex items-center justify-center p-3 rounded-md">
+                        <span class="add-panel-icon inline-block text-feishu-text">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <!-- 超大尺寸 -->
+                    <div class="hover-block-type-icon-container inline-flex items-center justify-center p-4 rounded-md">
+                        <span class="add-panel-icon inline-block text-feishu-text">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 在编辑器场景中的使用示例 -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-700">编辑器场景示例</h2>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start gap-2">
+                        <!-- 左侧添加按钮 -->
+                        <div class="hover-block-type-icon-container inline-flex items-center justify-center p-1 rounded-md mt-1">
+                            <span class="add-panel-icon inline-block text-feishu-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+
+                        <!-- 右侧编辑器内容 -->
+                        <div class="flex-1">
+                            <p class="text-gray-700 leading-relaxed">
+                                这是一段示例文本，展示添加按钮在编辑器中的实际使用场景。
+                                点击左侧的加号按钮可以插入新的内容块。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 带分隔线的另一个内容块 -->
+                    <div class="flex items-start gap-2 mt-4 pt-4 border-t border-gray-100">
+                        <div class="hover-block-type-icon-container inline-flex items-center justify-center p-1 rounded-md mt-1">
+                            <span class="add-panel-icon inline-block text-feishu-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-gray-700 leading-relaxed">
+                                另一个内容块，每个段落都可以有自己的添加按钮。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 不同状态展示 -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-700">状态变化</h2>
+                <div class="flex items-center gap-8">
+                    <!-- 默认状态 -->
+                    <div class="text-center">
+                        <div class="hover-block-type-icon-container inline-flex items-center justify-center p-2 rounded-md mb-2">
+                            <span class="inline-block text-feishu-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500">默认</p>
+                    </div>
+
+                    <!-- 悬停状态（模拟） -->
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center p-2 rounded-md mb-2 border" style="background-color: rgba(31, 35, 41, 0.06); border-color: rgba(31, 35, 41, 0.25);">
+                            <span class="inline-block text-feishu-text" style="transform: rotate(90deg);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500">悬停</p>
+                    </div>
+
+                    <!-- 活跃状态（模拟） -->
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center p-2 rounded-md mb-2 border" style="background-color: rgba(31, 35, 41, 0.12); border-color: rgba(31, 35, 41, 0.3);">
+                            <span class="inline-block text-feishu-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"></path>
+                                </svg>
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500">点击</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 代码示例 -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-700">HTML 代码</h2>
+                <div class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto">
+                    <pre class="text-sm"><code>&lt;div class="hover-block-type-icon-container"&gt;
+  &lt;span class="add-panel-icon"&gt;
+    &lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none"&gt;
+      &lt;path d="M12 2a1 1 0 0 0-1 1v8H3a1 1 0 1 0 0 2h8v8a1 1 0 1 0 2 0v-8h8a1 1 0 1 0 0-2h-8V3a1 1 0 0 0-1-1Z" fill="currentColor"&gt;&lt;/path&gt;
+    &lt;/svg&gt;
+  &lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

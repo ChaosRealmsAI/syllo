@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书Callout组件复刻</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'feishu-text': 'rgb(31, 35, 41)',
+                        'feishu-orange-bg': 'rgb(255, 245, 235)',
+                        'feishu-orange-border': 'rgb(254, 212, 164)',
+                    },
+                    fontFamily: {
+                        'feishu': ['LarkHackSafariFont', 'LarkEmojiFont', 'LarkChineseQuote', '-apple-system', 'system-ui', 'Helvetica Neue', 'Tahoma', 'PingFang SC', 'Microsoft Yahei', 'Arial', 'Hiragino Sans GB', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
+                    },
+                    fontSize: {
+                        'feishu-base': '16px',
+                    },
+                    lineHeight: {
+                        'feishu': '1.8',
+                        'feishu-tight': '1.625',
+                    },
+                    borderRadius: {
+                        'feishu': '8px',
+                    },
+                    spacing: {
+                        'feishu-4': '16px',
+                        'feishu-8': '32px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
+
+        /* 自定义样式补充 */
+        .callout-emoji {
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Segoe UI", "Noto Color Emoji", Emoji;
+        }
+
+        /* 模拟飞书的可编辑区域样式 */
+        .editable-area:focus {
+            outline: none;
+        }
+
+        /* 零宽字符占位符 */
+        .zero-space::after {
+            content: '\200B';
+        }
+    </style>
+</head>
+<body class="bg-white p-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- 标题 -->
+        <h1 class="text-2xl font-bold mb-8 text-feishu-text">飞书Callout组件复刻</h1>
+
+        <!-- Callout组件容器 -->
+        <div class="block relative my-4" data-block-type="callout">
+            <!-- 零宽占位符（顶部） -->
+            <div class="absolute h-0 w-0 overflow-hidden zero-space"></div>
+
+            <!-- Callout主体 -->
+            <div class="block relative">
+                <div class="block">
+                    <div class="block">
+                        <!-- 核心Callout容器 -->
+                        <div class="block relative w-full h-[60px] p-feishu-4 border border-feishu-orange-border rounded-feishu bg-feishu-orange-bg">
+                            <!-- Emoji图标容器 -->
+                            <div class="absolute top-[17px] left-feishu-4 w-6 h-[26px] flex justify-center items-center" contenteditable="false">
+                                <div class="w-fit">
+                                    <div class="flex justify-center items-center w-6 h-6">
+                                        <span class="callout-emoji text-[20px] leading-6 cursor-pointer">📚</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 文本内容区域 -->
+                            <div class="block ml-feishu-8 h-[26px]">
+                                <div class="block">
+                                    <div class="block relative mx-[-2px] px-[2px]">
+                                        <div class="block relative mx-[-2px] px-[2px]">
+                                            <div class="block relative mx-[-2px] px-[2px]">
+                                                <!-- 可编辑文本区域 -->
+                                                <div class="block relative ml-[-12px] pl-3 min-h-[26px] editable-area"
+                                                     contenteditable="true"
+                                                     data-slate-editor="true">
+                                                    <div class="block leading-feishu-tight text-feishu-base text-feishu-text font-feishu" dir="auto">
+                                                        <span class="zero-space"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 零宽占位符（底部） -->
+            <div class="absolute h-0 w-0 overflow-hidden zero-space"></div>
+        </div>
+
+        <!-- 使用示例 -->
+        <div class="mt-12 space-y-6">
+            <h2 class="text-xl font-bold text-feishu-text">更多示例</h2>
+
+            <!-- 带内容的Callout -->
+            <div class="block relative my-4">
+                <div class="block relative w-full min-h-[60px] p-feishu-4 border border-feishu-orange-border rounded-feishu bg-feishu-orange-bg">
+                    <div class="absolute top-[17px] left-feishu-4 w-6 h-[26px] flex justify-center items-center">
+                        <span class="callout-emoji text-[20px] leading-6">📚</span>
+                    </div>
+                    <div class="block ml-feishu-8 text-feishu-base text-feishu-text font-feishu leading-feishu-tight">
+                        这是一个带有内容的Callout示例，支持多行文本显示。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 不同emoji的Callout -->
+            <div class="block relative my-4">
+                <div class="block relative w-full min-h-[60px] p-feishu-4 border border-feishu-orange-border rounded-feishu bg-feishu-orange-bg">
+                    <div class="absolute top-[17px] left-feishu-4 w-6 h-[26px] flex justify-center items-center">
+                        <span class="callout-emoji text-[20px] leading-6">💡</span>
+                    </div>
+                    <div class="block ml-feishu-8 text-feishu-base text-feishu-text font-feishu leading-feishu-tight">
+                        提示：你可以更改emoji图标来表达不同的含义。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 多行内容的Callout -->
+            <div class="block relative my-4">
+                <div class="block relative w-full p-feishu-4 border border-feishu-orange-border rounded-feishu bg-feishu-orange-bg">
+                    <div class="absolute top-[17px] left-feishu-4 w-6 h-[26px] flex justify-center items-center">
+                        <span class="callout-emoji text-[20px] leading-6">⚠️</span>
+                    </div>
+                    <div class="block ml-feishu-8 text-feishu-base text-feishu-text font-feishu leading-feishu-tight">
+                        <p class="mb-2">这是一个多行内容的Callout示例。</p>
+                        <p class="mb-2">它可以包含多个段落，用于展示更详细的信息。</p>
+                        <p>每个段落都会自动换行，保持良好的阅读体验。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 组件说明 -->
+        <div class="mt-12 p-6 bg-gray-50 rounded-lg">
+            <h2 class="text-xl font-bold mb-4 text-feishu-text">组件特性</h2>
+            <ul class="space-y-2 text-feishu-text">
+                <li class="flex items-start">
+                    <span class="mr-2">•</span>
+                    <span>完全复刻飞书文档的Callout样式</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2">•</span>
+                    <span>支持自定义emoji图标</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2">•</span>
+                    <span>可编辑文本区域（contenteditable）</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2">•</span>
+                    <span>响应式布局，自适应内容高度</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="mr-2">•</span>
+                    <span>使用Tailwind CSS实现，易于定制</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

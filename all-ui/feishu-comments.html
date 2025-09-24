@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飞书评论组件</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'text-primary': 'rgb(31, 35, 41)',
+                        'text-secondary': 'rgb(100, 106, 115)',
+                        'text-tertiary': 'rgb(143, 149, 158)',
+                        'border-default': 'rgb(222, 224, 227)',
+                        'border-light': 'rgb(208, 211, 214)',
+                        'bg-primary': 'rgb(20, 86, 240)',
+                        'bg-surface': 'rgb(255, 255, 255)',
+                        'avatar-bg': 'rgb(187, 191, 196)',
+                    },
+                    fontFamily: {
+                        'lark': ['LarkHackSafariFont', 'LarkEmojiFont', 'LarkChineseQuote', '-apple-system', 'system-ui', 'Helvetica Neue', 'Tahoma', 'PingFang SC', 'Microsoft Yahei', 'Arial', 'Hiragino Sans GB', 'sans-serif'],
+                    },
+                    fontSize: {
+                        'xs-custom': '12px',
+                        'sm-custom': '14px',
+                    },
+                    lineHeight: {
+                        'custom': '22px',
+                        'tight-custom': '20px',
+                        'base-custom': '21px',
+                    },
+                    boxShadow: {
+                        'float': 'rgba(31, 35, 41, 0.1) 0px 4px 8px 0px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'LarkHackSafariFont', 'LarkEmojiFont', 'LarkChineseQuote', -apple-system, 'system-ui', 'Helvetica Neue', 'Tahoma', 'PingFang SC', 'Microsoft Yahei', 'Arial', 'Hiragino Sans GB', sans-serif;
+        }
+        /* 自定义滚动条样式 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(143, 149, 158, 0.3);
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(143, 149, 158, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-lark">
+    <!-- 主容器 -->
+    <div class="fixed right-0 top-0 w-[295px] h-screen bg-bg-surface shadow-lg z-50 transition-transform duration-300">
+        <!-- 内容容器 -->
+        <div class="flex flex-col w-full h-full">
+
+            <!-- 评论头部 -->
+            <div class="sticky top-0 flex items-center justify-between h-[41px] px-3 py-2 bg-bg-surface border-b border-border-default z-10">
+                <span class="flex-1 text-sm-custom font-medium text-text-primary">
+                    评论（2）
+                </span>
+                <button class="flex items-center justify-center w-4 h-4 text-text-primary hover:bg-gray-100 rounded transition-colors cursor-pointer">
+                    <!-- 折叠箭头图标 -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m13.058 6.472 5.637 5.636-5.944 5.943-.835.84a1 1 0 1 0 1.419 1.409l.663-.667 6.818-6.818a1 1 0 0 0 0-1.414l-6.472-6.473-1.012-1.013a1 1 0 0 0-1.416 1.41l1.142 1.147Z" fill="currentColor"/>
+                        <path d="m4.15 6.472 5.637 5.636-5.943 5.943-.836.84A1 1 0 1 0 4.427 20.3l.663-.667 6.818-6.818a1 1 0 0 0 0-1.414L5.436 4.928 4.424 3.915a1 1 0 0 0-1.415 1.41L4.15 6.472Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 滚动内容区域 -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar px-3 pb-24">
+
+                <!-- 跳转至首条评论按钮（浮动） -->
+                <div class="sticky top-2 z-20 flex justify-center mb-4 opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <button class="flex items-center gap-2 px-4 py-2 bg-bg-surface rounded-full shadow-float hover:shadow-lg transition-shadow cursor-pointer">
+                        <svg width="20" height="20" viewBox="0 0 20 20">
+                            <path fill="#2B2F36" d="M12.014 10v3.781H9.082V10H6.68a.681.681 0 01-.526-1.115l3.825-4.636a.681.681 0 011.052.001l3.808 4.637A.68.68 0 0114.313 10h-2.298zm-3.008 4.984h3.013v1.474c0 .296-.24.535-.535.535H9.541a.536.536 0 01-.535-.535v-1.474z" transform="matrix(1 0 0 -1 0 20.993)"/>
+                        </svg>
+                        <span class="text-sm-custom text-text-primary">跳转至首条评论</span>
+                    </button>
+                </div>
+
+                <!-- 评论列表 -->
+                <div class="space-y-4">
+
+                    <!-- 评论项 1 -->
+                    <div class="bg-bg-surface border border-border-default rounded-md transition-all duration-300 hover:shadow-md cursor-pointer">
+                        <!-- 评论头部引用 -->
+                        <div class="flex items-center px-3 pt-2 pb-1">
+                            <div class="flex-1 text-xs-custom text-text-secondary px-2 overflow-hidden">
+                                <span class="truncate" title="Werwerw">Werwerw</span>
+                            </div>
+                        </div>
+
+                        <!-- 评论内容 -->
+                        <div class="px-3 pb-1">
+                            <div class="flex items-start py-1.5">
+                                <!-- 头像 -->
+                                <div class="relative w-8 h-8 flex-shrink-0">
+                                    <div class="absolute inset-0 bg-avatar-bg rounded-full"></div>
+                                    <img class="absolute inset-0 w-8 h-8 rounded-full object-cover z-10"
+                                         src="https://s3-imfile.feishucdn.com/static-resource/v1/v2_44668394-4016-4240-bbb7-c49a44ece99g~?image_size=72x72&cut_type=default-face&quality=&format=jpeg&sticker_format=.webp"
+                                         alt="C">
+                                </div>
+
+                                <!-- 评论详情 -->
+                                <div class="flex-1 ml-3">
+                                    <div class="flex items-center text-xs-custom">
+                                        <span class="text-text-primary max-w-[104px] truncate">C</span>
+                                        <span class="text-text-tertiary ml-1">刚刚</span>
+                                    </div>
+                                    <div class="mt-1 text-sm-custom text-text-primary leading-custom">
+                                        Shdfisdfhi
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 回复占位 -->
+                        <div class="px-14 pb-2 text-xs-custom text-text-tertiary hover:text-text-secondary transition-colors">
+                            <span>回复...</span>
+                        </div>
+                    </div>
+
+                    <!-- 评论项 2（展开输入框状态） -->
+                    <div class="bg-bg-surface border border-border-default rounded-md transition-all duration-300 hover:shadow-md">
+                        <!-- 评论头部引用 -->
+                        <div class="flex items-center px-3 pt-2 pb-1">
+                            <div class="flex-1 text-xs-custom text-text-secondary px-2 overflow-hidden">
+                                <span class="truncate" title="Sdfdsfsdf">Sdfdsfsdf</span>
+                            </div>
+                            <button class="p-0.5 rounded hover:bg-gray-100 transition-colors">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.5 11.75a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm8.225 0a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Zm8.275 0a1.75 1.75 0 1 1-3.5 0 1.75 1.75 0 0 1 3.5 0Z" fill="currentColor"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 评论内容 -->
+                        <div class="px-3 pb-1">
+                            <div class="flex items-start py-1.5">
+                                <!-- 头像 -->
+                                <div class="relative w-8 h-8 flex-shrink-0">
+                                    <div class="absolute inset-0 bg-avatar-bg rounded-full"></div>
+                                    <img class="absolute inset-0 w-8 h-8 rounded-full object-cover z-10"
+                                         src="https://s3-imfile.feishucdn.com/static-resource/v1/v2_44668394-4016-4240-bbb7-c49a44ece99g~?image_size=72x72&cut_type=default-face&quality=&format=jpeg&sticker_format=.webp"
+                                         alt="C">
+                                </div>
+
+                                <!-- 评论详情 -->
+                                <div class="flex-1 ml-3">
+                                    <div class="flex items-center text-xs-custom">
+                                        <span class="text-text-primary max-w-[104px] truncate">C</span>
+                                    </div>
+                                    <div class="mt-1 text-sm-custom text-text-primary leading-custom">
+                                        <!-- 空评论 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 输入框区域 -->
+                        <div class="px-3 pb-4">
+                            <div class="flex flex-col">
+                                <!-- 输入框容器 -->
+                                <div class="border border-border-light rounded-md px-3 py-1 focus-within:border-bg-primary transition-colors">
+                                    <div class="min-h-[32px] py-1 text-sm-custom text-text-primary outline-none" contenteditable="true">
+                                        Wewrwer
+                                    </div>
+                                    <!-- 图片上传按钮 -->
+                                    <div class="flex items-center py-1.5 border-t border-gray-100">
+                                        <button class="text-text-primary hover:text-bg-primary transition-colors">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="m10.141 17.988-4.275-.01a.3.3 0 0 1-.212-.512l4.133-4.133a.4.4 0 0 1 .566 0l1.907 1.907 5.057-5.057a.4.4 0 0 1 .683.283V17.7a.3.3 0 0 1-.3.3h-7.476a.301.301 0 0 1-.083-.012ZM4 22c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H4Zm0-2h16V4H4v16ZM6 6h3v3H6V6Z" fill="currentColor"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 操作按钮 -->
+                                <div class="flex justify-end mt-3 space-x-2">
+                                    <button class="px-4 py-1 text-xs-custom text-text-primary bg-bg-surface border border-border-light rounded-md hover:bg-gray-50 transition-colors">
+                                        取消
+                                    </button>
+                                    <button class="px-4 py-1 text-xs-custom text-white bg-bg-primary border border-bg-primary rounded-md hover:opacity-90 transition-opacity">
+                                        发送
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 页面主体内容（用于演示） -->
+    <div class="p-8 mr-[295px]">
+        <h1 class="text-2xl font-bold mb-4 text-text-primary">飞书文档内容区域</h1>
+        <p class="text-text-secondary mb-4">这是文档的主体内容区域。评论侧边栏固定在右侧。</p>
+
+        <div class="space-y-4">
+            <div class="p-4 bg-white rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-2">第一段内容</h2>
+                <p class="text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            <div class="p-4 bg-white rounded-lg shadow">
+                <h2 class="text-lg font-semibold mb-2">第二段内容</h2>
+                <p class="text-gray-600">Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 简单的交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            // 点击回复时展开输入框
+            const replyButtons = document.querySelectorAll('[data-reply]');
+            replyButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    console.log('Reply clicked');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
